@@ -30,19 +30,17 @@
 
 /* Main Overlay Container */
 .chatover-overlay {
-  position: fixed;
-  top: 80px;
+  position: absolute;
+  top: 20px;
   right: 20px;
   width: 350px;
   height: 500px;
   min-width: 280px;
   min-height: 300px;
-  background: rgba(15, 15, 15, 0.9);
+  background: transparent;
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+  border: none;
   display: flex;
   flex-direction: column;
   /* Very high z-index to stay above YouTube UI but below browser chrome */
@@ -61,32 +59,16 @@
   transform: scale(0.95);
 }
 
-/* Minimized state - collapse to header only */
-.chatover-overlay.chatover-minimized {
-  height: 48px !important;
-  min-height: 48px !important;
-  resize: none;
-}
 
-.chatover-overlay.chatover-minimized .chatover-messages,
-.chatover-overlay.chatover-minimized .chatover-input-container,
-.chatover-overlay.chatover-minimized .chatover-resize {
-  display: none;
-}
-
-.chatover-overlay.chatover-minimized .chatover-header {
-  border-bottom: none;
-  border-radius: 16px;
-}
 
 /* Header */
 .chatover-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  padding: 12px 16px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 12px;
+  background: transparent;
+  border-bottom: none;
   cursor: grab;
   user-select: none;
   flex-shrink: 0;
@@ -96,16 +78,15 @@
   cursor: grabbing;
 }
 
-.chatover-title {
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
 .chatover-controls {
   display: flex;
   gap: 6px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.chatover-overlay:hover .chatover-controls {
+  opacity: 1;
 }
 
 .chatover-controls button {
@@ -126,15 +107,6 @@
 .chatover-controls button:hover {
   background: rgba(255, 255, 255, 0.2);
   color: #fff;
-}
-
-.chatover-minimize-btn {
-  font-weight: bold;
-  font-size: 16px !important;
-}
-
-.chatover-close-btn:hover {
-  background: rgba(255, 82, 82, 0.6) !important;
 }
 
 /* Messages Container */
@@ -248,17 +220,18 @@
   display: flex;
   gap: 8px;
   padding: 12px;
-  background: rgba(0, 0, 0, 0.3);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  border-top: none;
   flex-shrink: 0;
 }
 
 .chatover-input {
   flex: 1;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 0;
+  padding: 8px 4px;
   color: #fff;
   font-size: 13px;
   outline: none;
@@ -270,33 +243,11 @@
 }
 
 .chatover-input:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+  border-bottom-color: #667eea;
+  box-shadow: none;
 }
 
 .chatover-input:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.chatover-send-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.chatover-send-btn:hover:not(:disabled) {
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
-}
-
-.chatover-send-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -310,6 +261,12 @@
   height: 24px;
   cursor: nwse-resize;
   z-index: 10;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.chatover-overlay:hover .chatover-resize {
+  opacity: 1;
 }
 
 .chatover-resize::before {
@@ -371,6 +328,6 @@
 :-webkit-full-screen .chatover-overlay,
 :-moz-full-screen .chatover-overlay {
   /* Ensure overlay stays visible in fullscreen */
-  position: fixed !important;
+  position: absolute !important;
   z-index: 2147483640 !important;
 }
