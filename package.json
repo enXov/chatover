@@ -1,0 +1,38 @@
+{
+  "name": "chatover",
+  "version": "1.0.0",
+  "description": "YouTube live chat overlay extension for Chrome and Firefox",
+  "type": "module",
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build",
+    "build:chrome": "cross-env BROWSER=chrome vite build",
+    "build:firefox": "cross-env BROWSER=firefox vite build",
+    "lint": "eslint src/**/*.js",
+    "lint:fix": "eslint src/**/*.js --fix",
+    "format": "prettier --write \"src/**/*.{js,css,html}\"",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [
+    "youtube",
+    "live-chat",
+    "overlay",
+    "browser-extension",
+    "chrome-extension",
+    "firefox-addon"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@anthropic-ai/tokenizer": "^0.0.4",
+    "@anthropic-ai/vertex-sdk": "^0.4.3",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.57.0",
+    "prettier": "^3.3.3",
+    "vite": "^5.4.11"
+  },
+  "dependencies": {
+    "webextension-polyfill": "^0.12.0"
+  }
+}

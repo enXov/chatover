@@ -1,0 +1,35 @@
+{
+    "manifest_version": 3,
+    "name": "ChatOver - YouTube Live Chat Overlay",
+    "version": "1.0.0",
+    "description": "Overlay YouTube live chat on top of the video player for a better viewing experience",
+    "permissions": [
+        "storage"
+    ],
+    "host_permissions": [
+        "https://www.youtube.com/*"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "https://www.youtube.com/watch*"
+            ],
+            "js": [
+                "src/content/index.js"
+            ],
+            "css": [
+                "src/styles/overlay.css"
+            ],
+            "run_at": "document_idle"
+        }
+    ],
+    "background": {
+        "service_worker": "src/background/index.js",
+        "type": "module"
+    },
+    "icons": {
+        "16": "icons/icon16.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+    }
+}

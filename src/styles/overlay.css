@@ -1,0 +1,290 @@
+/**
+ * ChatOver - Overlay Styles
+ * Modern, clean, transparent design for YouTube live chat overlay
+ */
+
+/* Toggle Button */
+.chatover-toggle-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+}
+
+.chatover-toggle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+}
+
+.chatover-toggle-btn:active {
+  transform: translateY(0);
+}
+
+/* Main Overlay Container */
+.chatover-overlay {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 350px;
+  height: 500px;
+  background: rgba(15, 15, 15, 0.85);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 9999;
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  overflow: hidden;
+}
+
+.chatover-overlay.chatover-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.95);
+}
+
+/* Header */
+.chatover-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: grab;
+  user-select: none;
+}
+
+.chatover-header:active {
+  cursor: grabbing;
+}
+
+.chatover-title {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.chatover-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.chatover-controls button {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #ddd;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.chatover-controls button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.chatover-close-btn:hover {
+  background: rgba(255, 82, 82, 0.6) !important;
+}
+
+/* Messages Container */
+.chatover-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chatover-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chatover-messages::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.chatover-messages::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.chatover-messages::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Placeholder */
+.chatover-placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Message Item */
+.chatover-message {
+  display: flex;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  transition: background 0.2s ease;
+}
+
+.chatover-message:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.chatover-message-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.chatover-message-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.chatover-message-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.chatover-message-badges {
+  display: flex;
+  gap: 3px;
+}
+
+.chatover-message-badge {
+  width: 16px;
+  height: 16px;
+}
+
+.chatover-message-author {
+  font-size: 13px;
+  font-weight: 600;
+  color: #667eea;
+  text-shadow: 0 0 8px rgba(102, 126, 234, 0.5);
+}
+
+.chatover-message-text {
+  font-size: 14px;
+  color: #eee;
+  word-wrap: break-word;
+  text-shadow: 
+    -1px -1px 0 rgba(0, 0, 0, 0.8),
+    1px -1px 0 rgba(0, 0, 0, 0.8),
+    -1px 1px 0 rgba(0, 0, 0, 0.8),
+    1px 1px 0 rgba(0, 0, 0, 0.8);
+}
+
+/* Emotes */
+.chatover-emote {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+  margin: 0 2px;
+}
+
+/* Input Container */
+.chatover-input-container {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chatover-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 8px 16px;
+  color: #fff;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.chatover-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.chatover-input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+}
+
+.chatover-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chatover-send-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chatover-send-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+}
+
+.chatover-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Resize Handle */
+.chatover-resize {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  cursor: nwse-resize;
+}
+
+.chatover-resize::after {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid rgba(255, 255, 255, 0.3);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+}
