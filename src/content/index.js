@@ -44,12 +44,23 @@ function findElement(selectors) {
 }
 
 /**
- * Check if this is a live stream page
+ * Check if this is an active live stream (not replay, not normal video)
  */
 function isLiveStream() {
-    const chatFrame = findElement(CHAT_SELECTORS);
-    const liveIndicator = document.querySelector('.ytp-live-badge');
-    return !!(chatFrame || liveIndicator);
+    // Check for the live badge - this is the most reliable indicator
+    const liveBadge = document.querySelector('.ytp-live-badge');
+
+    // If there's no live badge, it's not a live stream
+    if (!liveBadge) {
+        return false;
+    }
+
+    // The live badge must be visible (display !== 'none')
+    // On replays, YouTube hides the badge with display: none
+    const computedStyle = window.getComputedStyle(liveBadge);
+    const isVisible = computedStyle.display !== 'none';
+
+    return isVisible;
 }
 
 /**
@@ -106,9 +117,17 @@ function toggleOverlay() {
     let overlay = document.getElementById('chatover-overlay');
 
     if (!overlay) {
+        // Find the video player container
+        const videoPlayer = findElement(VIDEO_SELECTORS);
+        if (!videoPlayer) {
+            console.log('ChatOver: Could not find video player');
+            return;
+        }
+
         overlay = createOverlay();
-        // Append to body for fullscreen compatibility
-        document.body.appendChild(overlay);
+        // Append to video player for containment
+        videoPlayer.style.position = 'relative';
+        videoPlayer.appendChild(overlay);
         restoreOverlayState(overlay);
     }
 
@@ -117,20 +136,6 @@ function toggleOverlay() {
 
     // Save visibility state
     browser.storage.sync.set({ visible: isVisible });
-}
-
-/**
- * Toggle minimize state
- */
-function toggleMinimize() {
-    const overlay = document.getElementById('chatover-overlay');
-    if (!overlay) return;
-
-    overlay.classList.toggle('chatover-minimized');
-    const isMinimized = overlay.classList.contains('chatover-minimized');
-
-    // Save minimized state
-    browser.storage.sync.set({ minimized: isMinimized });
 }
 
 /**
@@ -143,11 +148,8 @@ function createOverlay() {
 
     overlay.innerHTML = `
         <div class="chatover-header">
-            <span class="chatover-title">ChatOver</span>
             <div class="chatover-controls">
-                <button class="chatover-minimize-btn" title="Minimize">─</button>
                 <button class="chatover-settings-btn" title="Settings">⚙️</button>
-                <button class="chatover-close-btn" title="Close">✕</button>
             </div>
         </div>
         <div class="chatover-messages">
@@ -157,18 +159,11 @@ function createOverlay() {
         </div>
         <div class="chatover-input-container">
             <input type="text" class="chatover-input" placeholder="Type a message..." disabled />
-            <button class="chatover-send-btn" disabled>Send</button>
         </div>
         <div class="chatover-resize"></div>
     `;
 
     // Add event listeners
-    const closeBtn = overlay.querySelector('.chatover-close-btn');
-    closeBtn.addEventListener('click', () => toggleOverlay());
-
-    const minimizeBtn = overlay.querySelector('.chatover-minimize-btn');
-    minimizeBtn.addEventListener('click', () => toggleMinimize());
-
     const settingsBtn = overlay.querySelector('.chatover-settings-btn');
     settingsBtn.addEventListener('click', () => openSettings());
 
@@ -203,26 +198,27 @@ async function restoreOverlayState(overlay) {
 }
 
 /**
- * Make an element draggable
+ * Make an element draggable from anywhere on the overlay (constrained to parent)
  */
 function makeDraggable(element) {
-    const header = element.querySelector('.chatover-header');
     let isDragging = false;
     let startX, startY, initialX, initialY;
 
-    header.addEventListener('mousedown', (e) => {
+    element.addEventListener('mousedown', (e) => {
+        // Don't drag if clicking on controls, resize handle, or input
         if (e.target.closest('.chatover-controls')) return;
-        if (element.classList.contains('chatover-minimized')) return;
+        if (e.target.closest('.chatover-resize')) return;
+        if (e.target.closest('.chatover-input')) return;
 
         isDragging = true;
         startX = e.clientX;
         startY = e.clientY;
 
-        const rect = element.getBoundingClientRect();
-        initialX = rect.left;
-        initialY = rect.top;
+        // Get current position relative to parent
+        initialX = element.offsetLeft;
+        initialY = element.offsetTop;
 
-        header.style.cursor = 'grabbing';
+        element.style.cursor = 'grabbing';
         e.preventDefault();
     });
 
@@ -232,9 +228,16 @@ function makeDraggable(element) {
         const deltaX = e.clientX - startX;
         const deltaY = e.clientY - startY;
 
-        // Constrain to viewport
-        const newX = Math.max(0, Math.min(window.innerWidth - element.offsetWidth, initialX + deltaX));
-        const newY = Math.max(0, Math.min(window.innerHeight - element.offsetHeight, initialY + deltaY));
+        // Get parent (video player) dimensions
+        const parent = element.parentElement;
+        if (!parent) return;
+
+        const parentWidth = parent.offsetWidth;
+        const parentHeight = parent.offsetHeight;
+
+        // Constrain to parent bounds
+        const newX = Math.max(0, Math.min(parentWidth - element.offsetWidth, initialX + deltaX));
+        const newY = Math.max(0, Math.min(parentHeight - element.offsetHeight, initialY + deltaY));
 
         element.style.left = `${newX}px`;
         element.style.top = `${newY}px`;
@@ -245,13 +248,18 @@ function makeDraggable(element) {
     document.addEventListener('mouseup', () => {
         if (isDragging) {
             isDragging = false;
-            header.style.cursor = 'grab';
+            element.style.cursor = 'default';
 
-            // Save position
-            const rect = element.getBoundingClientRect();
-            browser.storage.sync.set({
-                position: { x: rect.left, y: rect.top }
-            });
+            // Save position as percentage of parent for responsive positioning
+            const parent = element.parentElement;
+            if (parent) {
+                browser.storage.sync.set({
+                    position: {
+                        x: element.offsetLeft,
+                        y: element.offsetTop
+                    }
+                });
+            }
         }
     });
 }
