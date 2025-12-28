@@ -8,23 +8,24 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  margin-right: 10px;
+  margin-right: 8px;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
+  line-height: 1;
 }
 
 .chatover-toggle-btn:hover {
-  transform: translateY(-2px);
+  transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
 }
 
 .chatover-toggle-btn:active {
-  transform: translateY(0);
+  transform: scale(0.98);
 }
 
 /* Main Overlay Container */
@@ -34,23 +35,48 @@
   right: 20px;
   width: 350px;
   height: 500px;
-  background: rgba(15, 15, 15, 0.85);
+  min-width: 280px;
+  min-height: 300px;
+  background: rgba(15, 15, 15, 0.9);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
-  z-index: 9999;
+  /* Very high z-index to stay above YouTube UI but below browser chrome */
+  z-index: 2147483640;
   font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease, height 0.3s ease;
   overflow: hidden;
+  /* Ensure it works in fullscreen */
+  contain: layout;
 }
 
+/* Hidden state */
 .chatover-overlay.chatover-hidden {
   opacity: 0;
   pointer-events: none;
   transform: scale(0.95);
+}
+
+/* Minimized state - collapse to header only */
+.chatover-overlay.chatover-minimized {
+  height: 48px !important;
+  min-height: 48px !important;
+  resize: none;
+}
+
+.chatover-overlay.chatover-minimized .chatover-messages,
+.chatover-overlay.chatover-minimized .chatover-input-container,
+.chatover-overlay.chatover-minimized .chatover-resize {
+  display: none;
+}
+
+.chatover-overlay.chatover-minimized .chatover-header {
+  border-bottom: none;
+  border-radius: 16px;
 }
 
 /* Header */
@@ -63,6 +89,7 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   cursor: grab;
   user-select: none;
+  flex-shrink: 0;
 }
 
 .chatover-header:active {
@@ -78,7 +105,7 @@
 
 .chatover-controls {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .chatover-controls button {
@@ -99,6 +126,11 @@
 .chatover-controls button:hover {
   background: rgba(255, 255, 255, 0.2);
   color: #fff;
+}
+
+.chatover-minimize-btn {
+  font-weight: bold;
+  font-size: 16px !important;
 }
 
 .chatover-close-btn:hover {
@@ -196,7 +228,7 @@
   font-size: 14px;
   color: #eee;
   word-wrap: break-word;
-  text-shadow: 
+  text-shadow:
     -1px -1px 0 rgba(0, 0, 0, 0.8),
     1px -1px 0 rgba(0, 0, 0, 0.8),
     -1px 1px 0 rgba(0, 0, 0, 0.8),
@@ -218,6 +250,7 @@
   padding: 12px;
   background: rgba(0, 0, 0, 0.3);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
 }
 
 .chatover-input {
@@ -273,18 +306,71 @@
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   cursor: nwse-resize;
+  z-index: 10;
 }
 
-.chatover-resize::after {
+.chatover-resize::before {
   content: '';
   position: absolute;
-  bottom: 6px;
-  right: 6px;
-  width: 8px;
-  height: 8px;
-  border-right: 2px solid rgba(255, 255, 255, 0.3);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  bottom: 4px;
+  right: 4px;
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(135deg,
+      transparent 0%,
+      transparent 45%,
+      rgba(255, 255, 255, 0.3) 45%,
+      rgba(255, 255, 255, 0.3) 55%,
+      transparent 55%,
+      transparent 100%),
+    linear-gradient(135deg,
+      transparent 0%,
+      transparent 65%,
+      rgba(255, 255, 255, 0.3) 65%,
+      rgba(255, 255, 255, 0.3) 75%,
+      transparent 75%,
+      transparent 100%),
+    linear-gradient(135deg,
+      transparent 0%,
+      transparent 85%,
+      rgba(255, 255, 255, 0.3) 85%,
+      rgba(255, 255, 255, 0.3) 95%,
+      transparent 95%,
+      transparent 100%);
+}
+
+.chatover-resize:hover::before {
+  background: linear-gradient(135deg,
+      transparent 0%,
+      transparent 45%,
+      rgba(255, 255, 255, 0.5) 45%,
+      rgba(255, 255, 255, 0.5) 55%,
+      transparent 55%,
+      transparent 100%),
+    linear-gradient(135deg,
+      transparent 0%,
+      transparent 65%,
+      rgba(255, 255, 255, 0.5) 65%,
+      rgba(255, 255, 255, 0.5) 75%,
+      transparent 75%,
+      transparent 100%),
+    linear-gradient(135deg,
+      transparent 0%,
+      transparent 85%,
+      rgba(255, 255, 255, 0.5) 85%,
+      rgba(255, 255, 255, 0.5) 95%,
+      transparent 95%,
+      transparent 100%);
+}
+
+/* Fullscreen specific overrides */
+:fullscreen .chatover-overlay,
+:-webkit-full-screen .chatover-overlay,
+:-moz-full-screen .chatover-overlay {
+  /* Ensure overlay stays visible in fullscreen */
+  position: fixed !important;
+  z-index: 2147483640 !important;
 }
