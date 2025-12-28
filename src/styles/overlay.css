@@ -192,8 +192,8 @@
 .chatover-message-author {
   font-size: 13px;
   font-weight: 600;
-  color: #667eea;
-  text-shadow: 0 0 8px rgba(102, 126, 234, 0.5);
+  color: #aaa;
+  text-shadow: none;
 }
 
 .chatover-message-text {
@@ -213,6 +213,154 @@
   height: 24px;
   vertical-align: middle;
   margin: 0 2px;
+}
+
+/* Stickers (Super Stickers) */
+.chatover-sticker {
+  max-width: 100px;
+  max-height: 100px;
+  margin: 8px 0;
+}
+
+/* Connection Status Indicator - Hidden by default */
+.chatover-status-indicator {
+  display: none;
+}
+
+.chatover-status-disconnected {
+  background: #666;
+}
+
+.chatover-status-connecting {
+  background: #f59e0b;
+  animation: chatover-pulse 1s infinite;
+}
+
+.chatover-status-connected {
+  background: #10b981;
+}
+
+.chatover-status-error {
+  background: #ef4444;
+}
+
+.chatover-status-ended {
+  background: #6b7280;
+}
+
+@keyframes chatover-pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Status Message */
+.chatover-status {
+  text-align: center;
+  padding: 12px;
+  font-size: 13px;
+  border-radius: 8px;
+  margin: 8px 0;
+}
+
+.chatover-status-info {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+}
+
+.chatover-status-error {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.chatover-status-success {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+}
+
+/* Paid Messages (Super Chat) */
+.chatover-message-paid {
+  border-left: 3px solid #1565c0;
+  background: rgba(21, 101, 192, 0.15);
+}
+
+.chatover-message-paid:hover {
+  background: rgba(21, 101, 192, 0.25);
+}
+
+.chatover-message-amount {
+  font-size: 11px;
+  font-weight: 600;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: auto;
+}
+
+/* Membership Messages */
+.chatover-message-membership {
+  border-left: 3px solid #0f9d58;
+  background: rgba(15, 157, 88, 0.15);
+}
+
+.chatover-message-membership:hover {
+  background: rgba(15, 157, 88, 0.25);
+}
+
+/* Author Role Colors - YouTube Live Chat Style */
+.chatover-author-owner {
+  color: #ffd600 !important;
+}
+
+.chatover-author-mod {
+  color: #5e84f1 !important;
+}
+
+.chatover-author-member {
+  color: #2ba640 !important;
+}
+
+.chatover-author-verified {
+  color: #aaa !important;
+}
+
+/* Badge Icons */
+.chatover-badge-owner,
+.chatover-badge-moderator,
+.chatover-badge-verified {
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Input Error State */
+.chatover-input-error {
+  border-bottom-color: #ef4444 !important;
+  animation: chatover-shake 0.3s ease;
+}
+
+@keyframes chatover-shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-4px);
+  }
+
+  75% {
+    transform: translateX(4px);
+  }
 }
 
 /* Input Container */

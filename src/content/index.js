@@ -4,6 +4,8 @@
  */
 
 import browser from 'webextension-polyfill';
+import { getChatManager, ConnectionState } from './chat/index.js';
+import { MessageRenderer } from './chat/MessageRenderer.js';
 
 // Selectors for YouTube elements
 const VIDEO_SELECTORS = [
@@ -31,6 +33,8 @@ const MIN_HEIGHT = 300;
 
 // State tracking
 let isInitialized = false;
+let messageRenderer = null;
+let chatConnected = false;
 
 /**
  * Find element using multiple selectors (resilience against YouTube DOM changes)
@@ -41,6 +45,14 @@ function findElement(selectors) {
         if (element) return element;
     }
     return null;
+}
+
+/**
+ * Extract video ID from current URL
+ */
+function getVideoId() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('v');
 }
 
 /**
@@ -129,13 +141,190 @@ function toggleOverlay() {
         videoPlayer.style.position = 'relative';
         videoPlayer.appendChild(overlay);
         restoreOverlayState(overlay);
+
+        // Initialize chat when overlay is first created
+        initializeChat(overlay);
     }
 
     overlay.classList.toggle('chatover-hidden');
     const isVisible = !overlay.classList.contains('chatover-hidden');
 
+    // Connect/disconnect chat based on visibility
+    if (isVisible && !chatConnected) {
+        connectChat();
+    }
+
     // Save visibility state
     browser.storage.sync.set({ visible: isVisible });
+}
+
+/**
+ * Initialize chat components for the overlay
+ */
+function initializeChat(overlay) {
+    const messagesContainer = overlay.querySelector('.chatover-messages');
+    const placeholder = messagesContainer.querySelector('.chatover-placeholder');
+
+    // Remove placeholder
+    if (placeholder) {
+        placeholder.remove();
+    }
+
+    // Create message renderer
+    messageRenderer = new MessageRenderer(messagesContainer);
+
+    // Set up input handling
+    const input = overlay.querySelector('.chatover-input');
+    setupInputHandler(input);
+
+    // Update connection status indicator
+    updateConnectionStatus(overlay, ConnectionState.DISCONNECTED);
+}
+
+/**
+ * Connect to live chat
+ */
+async function connectChat() {
+    const videoId = getVideoId();
+    if (!videoId) {
+        console.log('ChatOver: No video ID found');
+        return;
+    }
+
+    const overlay = document.getElementById('chatover-overlay');
+    if (!overlay) return;
+
+    const chatManager = getChatManager();
+
+    // Set up event listeners
+    chatManager.on('message', (message) => {
+        if (messageRenderer) {
+            messageRenderer.addMessage(message);
+        }
+    });
+
+    chatManager.on('state', (state) => {
+        updateConnectionStatus(overlay, state);
+
+        if (state === ConnectionState.CONNECTED) {
+            chatConnected = true;
+            enableInput(overlay);
+        } else if (state === ConnectionState.ERROR || state === ConnectionState.ENDED) {
+            chatConnected = false;
+            disableInput(overlay);
+        }
+    });
+
+    chatManager.on('error', (error) => {
+        console.error('ChatOver: Chat error:', error);
+        if (messageRenderer) {
+            messageRenderer.showStatus('Chat connection error. Retrying...', 'error');
+        }
+    });
+
+    // Connect to chat
+    updateConnectionStatus(overlay, ConnectionState.CONNECTING);
+    await chatManager.connect(videoId);
+}
+
+/**
+ * Disconnect from live chat
+ */
+function disconnectChat() {
+    const chatManager = getChatManager();
+    chatManager.disconnect();
+    chatConnected = false;
+}
+
+/**
+ * Update connection status indicator in overlay
+ */
+function updateConnectionStatus(overlay, state) {
+    let statusIndicator = overlay.querySelector('.chatover-status-indicator');
+
+    if (!statusIndicator) {
+        // Create status indicator
+        statusIndicator = document.createElement('div');
+        statusIndicator.className = 'chatover-status-indicator';
+        const header = overlay.querySelector('.chatover-header');
+        header.insertBefore(statusIndicator, header.firstChild);
+    }
+
+    // Update indicator based on state
+    statusIndicator.className = 'chatover-status-indicator';
+
+    switch (state) {
+        case ConnectionState.CONNECTING:
+            statusIndicator.classList.add('chatover-status-connecting');
+            statusIndicator.title = 'Connecting to chat...';
+            break;
+        case ConnectionState.CONNECTED:
+            statusIndicator.classList.add('chatover-status-connected');
+            statusIndicator.title = 'Connected to chat';
+            break;
+        case ConnectionState.ERROR:
+            statusIndicator.classList.add('chatover-status-error');
+            statusIndicator.title = 'Chat connection error';
+            break;
+        case ConnectionState.ENDED:
+            statusIndicator.classList.add('chatover-status-ended');
+            statusIndicator.title = 'Stream ended';
+            break;
+        default:
+            statusIndicator.classList.add('chatover-status-disconnected');
+            statusIndicator.title = 'Not connected';
+    }
+}
+
+/**
+ * Set up the input handler for sending messages
+ */
+function setupInputHandler(input) {
+    if (!input) return;
+
+    input.addEventListener('keydown', async (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            const text = input.value.trim();
+
+            if (text) {
+                // Use ChatManager to send via youtubei.js
+                const chatManager = getChatManager();
+                const sent = await chatManager.sendMessage(text);
+
+                if (sent) {
+                    input.value = '';
+                } else {
+                    console.log('ChatOver: Failed to send message');
+                    // Show error briefly
+                    input.classList.add('chatover-input-error');
+                    setTimeout(() => input.classList.remove('chatover-input-error'), 1000);
+                }
+            }
+        }
+    });
+}
+
+/**
+ * Enable the input field
+ */
+function enableInput(overlay) {
+    const input = overlay.querySelector('.chatover-input');
+    if (input) {
+        input.disabled = false;
+        input.placeholder = 'Type a message...';
+    }
+}
+
+/**
+ * Disable the input field
+ */
+function disableInput(overlay) {
+    const input = overlay.querySelector('.chatover-input');
+    if (input) {
+        input.disabled = true;
+        input.placeholder = 'Chat not connected';
+    }
 }
 
 /**
@@ -154,11 +343,11 @@ function createOverlay() {
         </div>
         <div class="chatover-messages">
             <div class="chatover-placeholder">
-                Chat messages will appear here when a live stream is active.
+                Connecting to chat...
             </div>
         </div>
         <div class="chatover-input-container">
-            <input type="text" class="chatover-input" placeholder="Type a message..." disabled />
+            <input type="text" class="chatover-input" placeholder="Connecting..." disabled />
         </div>
         <div class="chatover-resize"></div>
     `;
@@ -340,9 +529,16 @@ function handleFullscreenChange() {
 function cleanup() {
     const overlay = document.getElementById('chatover-overlay');
     const button = document.getElementById('chatover-toggle-btn');
+
+    // Disconnect chat
+    disconnectChat();
+
     if (overlay) overlay.remove();
     if (button) button.remove();
+
+    messageRenderer = null;
     isInitialized = false;
+    chatConnected = false;
 }
 
 /**
@@ -422,14 +618,14 @@ document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
 // Listen for YouTube SPA navigation
 window.addEventListener('yt-navigate-finish', () => {
     console.log('ChatOver: YouTube navigation detected');
-    isInitialized = false;
+    cleanup();
     setTimeout(init, 500);
 });
 
 // Also handle popstate for browser back/forward
 window.addEventListener('popstate', () => {
     console.log('ChatOver: Popstate navigation detected');
-    isInitialized = false;
+    cleanup();
     setTimeout(init, 500);
 });
 

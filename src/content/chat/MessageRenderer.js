@@ -1,0 +1,247 @@
+/**
+ * MessageRenderer - Renders chat messages to the DOM
+ */
+
+import { MessageType } from './MessageParser.js';
+
+/**
+ * Default maximum number of messages to display
+ */
+const DEFAULT_MAX_MESSAGES = 50;
+
+/**
+ * MessageRenderer handles rendering parsed messages to the overlay
+ */
+export class MessageRenderer {
+    /**
+     * @param {HTMLElement} container - The messages container element
+     * @param {object} options - Rendering options
+     */
+    constructor(container, options = {}) {
+        this.container = container;
+        this.maxMessages = options.maxMessages || DEFAULT_MAX_MESSAGES;
+        this.messages = [];
+        this.autoScroll = true;
+
+        // Track scroll position for auto-scroll behavior
+        this._setupScrollTracking();
+    }
+
+    /**
+     * Add a message to the display
+     * @param {object} message - Normalized message object from MessageParser
+     */
+    addMessage(message) {
+        // Create message element
+        const messageEl = this._createMessageElement(message);
+
+        // Add to DOM
+        this.container.appendChild(messageEl);
+        this.messages.push({ id: message.id, element: messageEl });
+
+        // Remove old messages if exceeding max
+        this._enforceMaxMessages();
+
+        // Auto-scroll if enabled
+        if (this.autoScroll) {
+            this._scrollToBottom();
+        }
+    }
+
+    /**
+     * Clear all messages
+     */
+    clear() {
+        this.container.innerHTML = '';
+        this.messages = [];
+    }
+
+    /**
+     * Update max messages setting
+     * @param {number} max - New maximum message count
+     */
+    setMaxMessages(max) {
+        this.maxMessages = max;
+        this._enforceMaxMessages();
+    }
+
+    /**
+     * Show a status message (e.g., connecting, error)
+     * @param {string} text - Status message text
+     * @param {string} type - Status type (info, error, success)
+     */
+    showStatus(text, type = 'info') {
+        // Remove existing status message
+        const existing = this.container.querySelector('.chatover-status');
+        if (existing) existing.remove();
+
+        const statusEl = document.createElement('div');
+        statusEl.className = `chatover-status chatover-status-${type}`;
+        statusEl.textContent = text;
+
+        this.container.appendChild(statusEl);
+    }
+
+    /**
+     * Remove status message
+     */
+    clearStatus() {
+        const existing = this.container.querySelector('.chatover-status');
+        if (existing) existing.remove();
+    }
+
+    /**
+     * Create a message element
+     * @private
+     */
+    _createMessageElement(message) {
+        const el = document.createElement('div');
+        el.className = 'chatover-message';
+        el.dataset.messageId = message.id;
+
+        // Add type-specific class
+        if (message.type === MessageType.PAID) {
+            el.classList.add('chatover-message-paid');
+            if (message.paidInfo?.color) {
+                el.style.borderLeftColor = message.paidInfo.color;
+            }
+        } else if (message.type === MessageType.MEMBERSHIP) {
+            el.classList.add('chatover-message-membership');
+        }
+
+        // Build message HTML
+        el.innerHTML = `
+            <img class="chatover-message-avatar" 
+                 src="${this._escapeHtml(message.author.avatarUrl)}" 
+                 alt="${this._escapeHtml(message.author.name)}"
+                 onerror="this.style.display='none'" />
+            <div class="chatover-message-content">
+                <div class="chatover-message-header">
+                    ${this._renderBadges(message.badges)}
+                    <span class="chatover-message-author ${this._getAuthorClass(message.author)}">
+                        ${this._escapeHtml(message.author.name)}
+                    </span>
+                    ${message.paidInfo ? `<span class="chatover-message-amount">${this._escapeHtml(message.paidInfo.amount)}</span>` : ''}
+                </div>
+                <div class="chatover-message-text">
+                    ${this._renderMessageContent(message.message)}
+                </div>
+            </div>
+        `;
+
+        return el;
+    }
+
+    /**
+     * Render badges HTML
+     * @private
+     */
+    _renderBadges(badges) {
+        if (!badges || badges.length === 0) return '';
+
+        return `<div class="chatover-message-badges">
+            ${badges.map(badge => {
+            if (badge.url) {
+                // Custom badge with image
+                return `<img class="chatover-message-badge" 
+                                 src="${this._escapeHtml(badge.url)}" 
+                                 alt="${this._escapeHtml(badge.label)}" 
+                                 title="${this._escapeHtml(badge.label)}" />`;
+            } else {
+                // Icon badge
+                return `<span class="chatover-message-badge chatover-badge-${badge.type}" 
+                                  title="${this._escapeHtml(badge.label)}">${badge.icon}</span>`;
+            }
+        }).join('')}
+        </div>`;
+    }
+
+    /**
+     * Render message content with emotes
+     * @private
+     */
+    _renderMessageContent(message) {
+        if (!message.runs || message.runs.length === 0) {
+            return this._escapeHtml(message.text);
+        }
+
+        return message.runs.map(run => {
+            if (run.type === 'emote') {
+                // If URL exists, show image; otherwise show text
+                if (run.url) {
+                    return `<img class="chatover-emote" 
+                                 src="${this._escapeHtml(run.url)}" 
+                                 alt="${this._escapeHtml(run.alt)}" 
+                                 title="${this._escapeHtml(run.alt)}"
+                                 onerror="this.outerHTML='${this._escapeHtml(run.text)}'" />`;
+                } else {
+                    // No URL, show text representation
+                    return this._escapeHtml(run.text);
+                }
+            } else if (run.type === 'sticker' && run.url) {
+                return `<img class="chatover-sticker" 
+                             src="${this._escapeHtml(run.url)}" 
+                             alt="${this._escapeHtml(run.alt)}" />`;
+            } else {
+                return this._escapeHtml(run.text);
+            }
+        }).join('');
+    }
+
+    /**
+     * Get author class for styling
+     * @private
+     */
+    _getAuthorClass(author) {
+        const classes = [];
+        if (author.isOwner) classes.push('chatover-author-owner');
+        if (author.isModerator) classes.push('chatover-author-mod');
+        if (author.isMember) classes.push('chatover-author-member');
+        if (author.isVerified) classes.push('chatover-author-verified');
+        return classes.join(' ');
+    }
+
+    /**
+     * Enforce max message limit
+     * @private
+     */
+    _enforceMaxMessages() {
+        while (this.messages.length > this.maxMessages) {
+            const oldest = this.messages.shift();
+            if (oldest && oldest.element.parentNode) {
+                oldest.element.remove();
+            }
+        }
+    }
+
+    /**
+     * Set up scroll tracking for auto-scroll
+     * @private
+     */
+    _setupScrollTracking() {
+        this.container.addEventListener('scroll', () => {
+            // Check if user scrolled up (disable auto-scroll)
+            const isNearBottom = this.container.scrollHeight - this.container.scrollTop - this.container.clientHeight < 50;
+            this.autoScroll = isNearBottom;
+        });
+    }
+
+    /**
+     * Scroll to bottom of messages
+     * @private
+     */
+    _scrollToBottom() {
+        this.container.scrollTop = this.container.scrollHeight;
+    }
+
+    /**
+     * Escape HTML to prevent XSS
+     * @private
+     */
+    _escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+}
