@@ -128,7 +128,7 @@ export class ChatManager {
             console.log('ChatOver: Message sent via youtubei.js');
             return { success: true };
         } catch (error) {
-            console.error('ChatOver: Failed to send message:', error);
+            console.log('ChatOver: Failed to send message:', error);
             // Don't emit generic error - let the caller handle send-specific errors
             // Check for common error types
             const errorMsg = error.message || error.toString();
