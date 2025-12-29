@@ -29,6 +29,9 @@ const MIN_HEIGHT = 300;
 
 // State tracking
 let isInitialized = false;
+let isInitializing = false; // Lock to prevent parallel init
+let initTimer = null; // Timer for debounced init
+let currentInitToken = null; // Token to validate active init session
 let messageRenderer = null;
 let chatConnected = false;
 let resizeObserver = null;
@@ -82,6 +85,9 @@ function createToggleButton(forTeaserCarousel = false) {
     const existingBtn = document.getElementById('chatover-toggle-btn');
     if (existingBtn) existingBtn.remove();
 
+    // Double check - if we already have a button (race condition), don't create another
+    if (document.getElementById('chatover-toggle-btn')) return null;
+
     const button = document.createElement('button');
     button.id = 'chatover-toggle-btn';
     button.className = forTeaserCarousel ? 'chatover-toggle-btn chatover-toggle-btn-teaser' : 'chatover-toggle-btn ytp-button';
@@ -100,16 +106,23 @@ function createToggleButton(forTeaserCarousel = false) {
  * Insert toggle button into YouTube UI (teaser carousel only)
  */
 function insertToggleButton() {
+    // Safety check - do not insert if already exists
+    if (document.getElementById('chatover-toggle-btn')) {
+        return true;
+    }
+
     const container = document.querySelector(BUTTON_PLACEMENT_SELECTOR);
     if (container) {
         // Find the Live chat section in the teaser carousel
         const liveChatSection = findLiveChatTeaserSection(container);
         if (liveChatSection) {
             const button = createToggleButton(true);
-            // Insert button at the end of the Live chat section
-            liveChatSection.appendChild(button);
-            console.log('ChatOver: Button inserted in teaser carousel');
-            return true;
+            if (button) {
+                // Insert button at the end of the Live chat section
+                liveChatSection.appendChild(button);
+                console.log('ChatOver: Button inserted in teaser carousel');
+                return true;
+            }
         }
     }
 
@@ -253,6 +266,9 @@ async function connectChat() {
 
     const overlay = document.getElementById('chatover-overlay');
     if (!overlay) return;
+
+    // Prevent double connection
+    if (chatConnected) return;
 
     const chatManager = getChatManager();
 
@@ -656,10 +672,20 @@ function constrainOverlayToParent() {
  * Cleanup overlay and button
  */
 function cleanup() {
+    // Clear any pending init timer
+    if (initTimer) {
+        clearTimeout(initTimer);
+        initTimer = null;
+    }
+
+    // Invalidate current init session
+    currentInitToken = null;
+
     const overlay = document.getElementById('chatover-overlay');
     const button = document.getElementById('chatover-toggle-btn');
 
     // Disconnect chat
+    console.log('ChatOver: Cleanup called, disconnecting chat');
     disconnectChat();
 
     // Disconnect resize observer
@@ -673,6 +699,7 @@ function cleanup() {
 
     messageRenderer = null;
     isInitialized = false;
+    isInitializing = false;
     chatConnected = false;
 }
 
@@ -680,9 +707,14 @@ function cleanup() {
  * Initialize ChatOver
  */
 async function init() {
-    // Prevent double initialization
-    if (isInitialized) return;
+    // Generate a unique token for this session
+    const thisInitToken = Date.now() + Math.random();
+    currentInitToken = thisInitToken;
 
+    // Prevent double initialization
+    if (isInitialized || isInitializing) return;
+
+    isInitializing = true;
     console.log('ChatOver: Initializing...');
 
     // Wait for YouTube to fully load
@@ -690,21 +722,33 @@ async function init() {
         await waitForElement('#content', 10000);
     } catch (e) {
         console.log('ChatOver: YouTube content not loaded');
+        isInitializing = false;
+        return;
+    }
+
+    // Check if validation token is still valid (i.e., cleanup wasn't called)
+    if (currentInitToken !== thisInitToken) {
+        console.log('ChatOver: Init aborted - session invalidated by cleanup/new nav');
+        isInitializing = false;
         return;
     }
 
     // Check if this is a live stream
     if (!isLiveStream()) {
         console.log('ChatOver: Not a live stream, inactive.');
-        cleanup();
+        cleanup(); // cleanup resets isInitializing
         return;
     }
 
     console.log('ChatOver: Live stream detected!');
     isInitialized = true;
+    isInitializing = false;
 
     // Insert toggle button (with retry for dynamic loading)
     const insertButton = () => {
+        // Token check again for delayed execution
+        if (currentInitToken !== thisInitToken) return;
+
         if (!insertToggleButton()) {
             setTimeout(insertButton, 1000);
         }
@@ -713,6 +757,13 @@ async function init() {
 
     // Load saved settings and restore state
     const settings = await browser.storage.sync.get(['visible']);
+
+    // Final token check
+    if (currentInitToken !== thisInitToken) {
+        console.log('ChatOver: Init aborted before showing overlay - session invalidated');
+        return;
+    }
+
     if (settings.visible) {
         toggleOverlay();
     }
@@ -754,19 +805,26 @@ document.addEventListener('webkitfullscreenchange', constrainOverlayToParent);
 window.addEventListener('yt-navigate-finish', () => {
     console.log('ChatOver: YouTube navigation detected');
     cleanup();
-    setTimeout(init, 500);
+    if (initTimer) clearTimeout(initTimer);
+    initTimer = setTimeout(init, 500);
 });
 
 // Also handle popstate for browser back/forward
 window.addEventListener('popstate', () => {
     console.log('ChatOver: Popstate navigation detected');
     cleanup();
-    setTimeout(init, 500);
+    if (initTimer) clearTimeout(initTimer);
+    initTimer = setTimeout(init, 500);
 });
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => {
+        if (initTimer) clearTimeout(initTimer);
+        initTimer = setTimeout(init, 500);
+    });
 } else {
-    init();
+    // If we inject after load, run init
+    if (initTimer) clearTimeout(initTimer);
+    initTimer = setTimeout(init, 500);
 }

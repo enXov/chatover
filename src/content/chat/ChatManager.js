@@ -27,6 +27,7 @@ export class ChatManager {
         this.livechat = null;
         this.videoId = null;
         this.connectionState = ConnectionState.DISCONNECTED;
+        this.connectionToken = null; // Token to validate active connection attempt
         this.listeners = {
             message: [],
             state: [],
@@ -41,8 +42,14 @@ export class ChatManager {
      * @param {string} videoId - YouTube video ID
      */
     async connect(videoId) {
+        // Generate new token for this connection attempt
+        const myToken = Date.now() + Math.random();
+        this.connectionToken = myToken;
+
         if (this.livechat) {
             this.disconnect();
+            // Restore token as disconnect clears it
+            this.connectionToken = myToken;
         }
 
         this.videoId = videoId;
@@ -59,16 +66,30 @@ export class ChatManager {
                     return window.fetch(input, newInit);
                 };
 
-                this.innertube = await Innertube.create({
+                const innertubeInstance = await Innertube.create({
                     retrieve_player: false,
                     generate_session_locally: true,
                     fetch: customFetch,
                     cookie: document.cookie // Explicitly pass cookies so it can generate auth headers
                 });
+
+                // Check if we were cancelled/replaced while awaiting
+                if (this.connectionToken !== myToken) {
+                    console.log('ChatOver: Connection attempt cancelled (innertube init)');
+                    return;
+                }
+
+                this.innertube = innertubeInstance;
             }
 
             // Get video info to access live chat
             const info = await this.innertube.getInfo(videoId);
+
+            // Check if we were cancelled/replaced while awaiting
+            if (this.connectionToken !== myToken) {
+                console.log('ChatOver: Connection attempt cancelled (get info)');
+                return;
+            }
 
             // Check if this is a live stream with chat
             if (!info.livechat) {
@@ -88,6 +109,12 @@ export class ChatManager {
             console.log('ChatOver: Connected to live chat for video', videoId);
 
         } catch (error) {
+            // Check if we were cancelled - if so, ignore error
+            if (this.connectionToken !== myToken) {
+                console.log('ChatOver: Connection attempt cancelled during error:', error);
+                return;
+            }
+
             console.error('ChatOver: Failed to connect to live chat:', error);
             this._setState(ConnectionState.ERROR);
             this._emit('error', error);
@@ -98,13 +125,29 @@ export class ChatManager {
      * Disconnect from the current live chat
      */
     disconnect() {
+        // Invalidate any pending connection
+        this.connectionToken = null;
+
         if (this.livechat) {
-            this.livechat.stop();
+            try {
+                this.livechat.stop();
+            } catch (e) {
+                // Ignore errors stopping
+            }
             this.livechat = null;
         }
         this.videoId = null;
         this._setState(ConnectionState.DISCONNECTED);
-        console.log('ChatOver: Disconnected from live chat');
+
+        // Clear all listeners to prevent duplicates on reconnection
+        this.listeners = {
+            message: [],
+            state: [],
+            error: [],
+            metadata: []
+        };
+
+        console.log('ChatOver: Disconnected from live chat and cleared listeners');
     }
 
     /**
