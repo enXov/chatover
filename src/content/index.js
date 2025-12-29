@@ -328,6 +328,27 @@ function disableInput(overlay) {
 }
 
 /**
+ * Stop keyboard and scroll events from bubbling to YouTube player
+ * This prevents YouTube shortcuts (k, j, l, m, f, etc.) from triggering
+ * when the overlay has focus, and prevents page scroll when scrolling in overlay
+ */
+function stopEventCapture(element) {
+    const preventPropagation = (e) => {
+        e.stopPropagation();
+    };
+
+    // Keyboard events
+    element.addEventListener('keydown', preventPropagation);
+    element.addEventListener('keyup', preventPropagation);
+    element.addEventListener('keypress', preventPropagation);
+
+    // Scroll/wheel events - prevent page scrolling when scrolling inside overlay
+    element.addEventListener('wheel', preventPropagation, { passive: true });
+    element.addEventListener('mousewheel', preventPropagation, { passive: true });
+    element.addEventListener('DOMMouseScroll', preventPropagation, { passive: true });
+}
+
+/**
  * Create the main chat overlay element
  */
 function createOverlay() {
@@ -359,6 +380,9 @@ function createOverlay() {
     // Make overlay draggable and resizable
     makeDraggable(overlay);
     makeResizable(overlay);
+
+    // Prevent YouTube keyboard shortcuts and page scroll when overlay is focused
+    stopEventCapture(overlay);
 
     return overlay;
 }
