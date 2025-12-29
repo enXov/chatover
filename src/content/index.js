@@ -20,12 +20,8 @@ const CHAT_SELECTORS = [
     '#chatframe'
 ];
 
-// Multiple selector options for toggle button placement
-const BUTTON_PLACEMENT_SELECTORS = [
-    '.ytp-right-controls',           // Fullscreen-compatible position
-    '#chat-container #show-hide-button', // Near chat toggle
-    '#secondary-inner'               // Sidebar fallback
-];
+// Button placement - only in teaser carousel (below video, not in player controls)
+const BUTTON_PLACEMENT_SELECTOR = '#teaser-carousel';
 
 // Minimum overlay dimensions
 const MIN_WIDTH = 280;
@@ -78,15 +74,16 @@ function isLiveStream() {
 
 /**
  * Create the "Open Panel" button for the overlay
+ * @param {boolean} forTeaserCarousel - If true, style for teaser carousel placement
  */
-function createToggleButton() {
+function createToggleButton(forTeaserCarousel = false) {
     // Remove existing button if present
     const existingBtn = document.getElementById('chatover-toggle-btn');
     if (existingBtn) existingBtn.remove();
 
     const button = document.createElement('button');
     button.id = 'chatover-toggle-btn';
-    button.className = 'chatover-toggle-btn ytp-button';
+    button.className = forTeaserCarousel ? 'chatover-toggle-btn chatover-toggle-btn-teaser' : 'chatover-toggle-btn ytp-button';
     button.textContent = 'ChatOver';
     button.title = 'Toggle ChatOver overlay';
 
@@ -99,28 +96,61 @@ function createToggleButton() {
 }
 
 /**
- * Insert toggle button into YouTube UI
+ * Insert toggle button into YouTube UI (teaser carousel only)
  */
 function insertToggleButton() {
-    const button = createToggleButton();
-
-    // Try each placement selector
-    for (const selector of BUTTON_PLACEMENT_SELECTORS) {
-        const container = document.querySelector(selector);
-        if (container) {
-            if (selector === '.ytp-right-controls') {
-                // Insert at beginning of right controls for visibility
-                container.insertBefore(button, container.firstChild);
-            } else {
-                container.parentElement?.insertBefore(button, container);
-            }
-            console.log('ChatOver: Button inserted at', selector);
+    const container = document.querySelector(BUTTON_PLACEMENT_SELECTOR);
+    if (container) {
+        // Find the Live chat section in the teaser carousel
+        const liveChatSection = findLiveChatTeaserSection(container);
+        if (liveChatSection) {
+            const button = createToggleButton(true);
+            // Insert button at the end of the Live chat section
+            liveChatSection.appendChild(button);
+            console.log('ChatOver: Button inserted in teaser carousel');
             return true;
         }
     }
 
-    console.log('ChatOver: Could not find button container');
+    console.log('ChatOver: Could not find teaser carousel Live chat section');
     return false;
+}
+
+/**
+ * Find the Live chat section within the teaser carousel
+ * Tries multiple strategies as YouTube's DOM can vary
+ */
+function findLiveChatTeaserSection(teaserCarousel) {
+    // Strategy 1: Look for section with class containing 'ItemSection'
+    const sections = teaserCarousel.querySelectorAll('[class*="ItemSection"], [class*="item-section"]');
+    for (const section of sections) {
+        if (section.textContent.includes('Live chat')) {
+            return section;
+        }
+    }
+
+    // Strategy 2: Look for any element containing "Live chat" text
+    const allElements = teaserCarousel.querySelectorAll('*');
+    for (const el of allElements) {
+        // Check direct text content (not children)
+        const directText = Array.from(el.childNodes)
+            .filter(n => n.nodeType === Node.TEXT_NODE)
+            .map(n => n.textContent)
+            .join('');
+        if (directText.includes('Live chat')) {
+            // Return the parent container that likely holds the whole section
+            return el.closest('[class*="carousel"], [class*="teaser"]') || el.parentElement;
+        }
+    }
+
+    // Strategy 3: Find 'Open panel' button and get its container
+    const openPanelBtn = teaserCarousel.querySelector('button');
+    if (openPanelBtn && openPanelBtn.textContent.includes('Open panel')) {
+        return openPanelBtn.parentElement;
+    }
+
+    // Strategy 4: Just return the teaser carousel itself as last resort
+    return teaserCarousel;
 }
 
 /**

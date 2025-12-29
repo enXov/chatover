@@ -28,6 +28,33 @@
   transform: scale(0.98);
 }
 
+/* Toggle Button - Teaser Carousel Variant */
+.chatover-toggle-btn-teaser {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 18px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-left: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.chatover-toggle-btn-teaser:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+  filter: brightness(1.1);
+}
+
+.chatover-toggle-btn-teaser:active {
+  transform: scale(0.98);
+}
+
 /* Main Overlay Container */
 .chatover-overlay {
   position: absolute;
