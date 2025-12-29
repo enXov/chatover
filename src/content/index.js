@@ -290,13 +290,25 @@ function setupInputHandler(input) {
             if (text) {
                 // Use ChatManager to send via youtubei.js
                 const chatManager = getChatManager();
-                const sent = await chatManager.sendMessage(text);
+                const result = await chatManager.sendMessage(text);
 
-                if (sent) {
+                if (result.success) {
                     input.value = '';
                 } else {
-                    console.log('ChatOver: Failed to send message');
-                    // Show error briefly
+                    console.log('ChatOver: Failed to send message:', result.error);
+
+                    // Show specific error message based on error type
+                    if (result.error === 'not_allowed') {
+                        if (messageRenderer) {
+                            messageRenderer.showStatus('Cannot send: Members-only or restricted chat', 'error');
+                        }
+                    } else if (result.error === 'not_connected') {
+                        if (messageRenderer) {
+                            messageRenderer.showStatus('Cannot send: Chat not connected', 'error');
+                        }
+                    }
+
+                    // Show visual error on input
                     input.classList.add('chatover-input-error');
                     setTimeout(() => input.classList.remove('chatover-input-error'), 1000);
                 }

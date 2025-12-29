@@ -110,27 +110,33 @@ export class ChatManager {
     /**
      * Send a message to the live chat via youtubei.js
      * @param {string} text - Message text to send
-     * @returns {Promise<boolean>} True if message was sent successfully
+     * @returns {Promise<{success: boolean, error?: string}>} Result object with success status and optional error
      */
     async sendMessage(text) {
         if (!text || !text.trim()) {
-            return false;
+            return { success: false, error: 'empty' };
         }
 
         if (!this.livechat || this.connectionState !== ConnectionState.CONNECTED) {
             console.log('ChatOver: Cannot send message - not connected to chat');
-            return false;
+            return { success: false, error: 'not_connected' };
         }
 
         try {
             // Use youtubei.js LiveChat sendMessage method
             await this.livechat.sendMessage(text.trim());
             console.log('ChatOver: Message sent via youtubei.js');
-            return true;
+            return { success: true };
         } catch (error) {
             console.error('ChatOver: Failed to send message:', error);
-            this._emit('error', error);
-            return false;
+            // Don't emit generic error - let the caller handle send-specific errors
+            // Check for common error types
+            const errorMsg = error.message || error.toString();
+            // DimChatItemAction = subscribers-only mode error
+            if (errorMsg.includes('not allowed') || errorMsg.includes('permission') || errorMsg.includes('subscriber') || errorMsg.includes('DimChatItemAction')) {
+                return { success: false, error: 'not_allowed' };
+            }
+            return { success: false, error: 'send_failed' };
         }
     }
 
@@ -187,8 +193,10 @@ export class ChatManager {
         this.livechat.on('error', (error) => {
             console.error('ChatOver: Live chat error:', error);
 
+            const errorMsg = error?.message || error?.toString() || '';
+
             // Handle transient network errors (like Failed to fetch)
-            if (error && (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError'))) {
+            if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
                 console.log('ChatOver: Transient network error, attempting to resume chat...');
 
                 // Don't change state to ERROR, keep it as CONNECTED but maybe show a warning?
@@ -202,6 +210,16 @@ export class ChatManager {
                         }
                     }
                 }, 2000);
+                return;
+            }
+
+            // Ignore send-related errors - these happen when user can't send (subscribers-only, etc.)
+            // These are NOT connection errors and should not trigger reconnection or error UI
+            if (errorMsg.includes('DimChatItemAction') ||
+                errorMsg.includes('sendMessage') ||
+                errorMsg.includes('not allowed') ||
+                errorMsg.includes('permission')) {
+                console.log('ChatOver: Send-related error, ignoring (not a connection issue)');
                 return;
             }
 

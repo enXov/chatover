@@ -401,6 +401,12 @@
   background: transparent;
   border-top: none;
   flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.chatover-overlay:hover .chatover-input-container {
+  opacity: 1;
 }
 
 .chatover-input {
