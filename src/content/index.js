@@ -35,6 +35,7 @@ const MIN_HEIGHT = 300;
 let isInitialized = false;
 let messageRenderer = null;
 let chatConnected = false;
+let resizeObserver = null;
 
 /**
  * Find element using multiple selectors (resilience against YouTube DOM changes)
@@ -144,6 +145,16 @@ function toggleOverlay() {
 
         // Initialize chat when overlay is first created
         initializeChat(overlay);
+
+        // Observe video player resize to constrain overlay position
+        // This handles theater mode switches, window resize, etc.
+        if (resizeObserver) {
+            resizeObserver.disconnect();
+        }
+        resizeObserver = new ResizeObserver(() => {
+            constrainOverlayToParent();
+        });
+        resizeObserver.observe(videoPlayer);
     }
 
     overlay.classList.toggle('chatover-hidden');
@@ -546,20 +557,42 @@ function openSettings() {
 }
 
 /**
- * Handle fullscreen changes
+ * Constrain overlay position to stay within parent bounds
+ * Called on fullscreen changes, theater mode switches, and any container resize
  */
-function handleFullscreenChange() {
+function constrainOverlayToParent() {
     const overlay = document.getElementById('chatover-overlay');
     if (!overlay) return;
 
-    // Constrain overlay to viewport when fullscreen changes
-    const rect = overlay.getBoundingClientRect();
-    const maxX = window.innerWidth - overlay.offsetWidth;
-    const maxY = window.innerHeight - overlay.offsetHeight;
+    const parent = overlay.parentElement;
+    if (!parent) return;
 
-    if (rect.left > maxX || rect.top > maxY) {
-        overlay.style.left = `${Math.max(0, Math.min(rect.left, maxX))}px`;
-        overlay.style.top = `${Math.max(0, Math.min(rect.top, maxY))}px`;
+    const parentWidth = parent.offsetWidth;
+    const parentHeight = parent.offsetHeight;
+    const overlayWidth = overlay.offsetWidth;
+    const overlayHeight = overlay.offsetHeight;
+
+    // Calculate maximum positions
+    const maxX = Math.max(0, parentWidth - overlayWidth);
+    const maxY = Math.max(0, parentHeight - overlayHeight);
+
+    // Get current position
+    const currentX = overlay.offsetLeft;
+    const currentY = overlay.offsetTop;
+
+    // Constrain to bounds
+    const newX = Math.max(0, Math.min(currentX, maxX));
+    const newY = Math.max(0, Math.min(currentY, maxY));
+
+    // Only update if position changed
+    if (newX !== currentX || newY !== currentY) {
+        overlay.style.left = `${newX}px`;
+        overlay.style.top = `${newY}px`;
+        overlay.style.right = 'auto';
+        overlay.style.bottom = 'auto';
+
+        // Update saved position
+        browser.storage.sync.set({ position: { x: newX, y: newY } });
     }
 }
 
@@ -572,6 +605,12 @@ function cleanup() {
 
     // Disconnect chat
     disconnectChat();
+
+    // Disconnect resize observer
+    if (resizeObserver) {
+        resizeObserver.disconnect();
+        resizeObserver = null;
+    }
 
     if (overlay) overlay.remove();
     if (button) button.remove();
@@ -652,8 +691,8 @@ function waitForElement(selector, timeout = 10000) {
 }
 
 // Listen for fullscreen changes
-document.addEventListener('fullscreenchange', handleFullscreenChange);
-document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+document.addEventListener('fullscreenchange', constrainOverlayToParent);
+document.addEventListener('webkitfullscreenchange', constrainOverlayToParent);
 
 // Listen for YouTube SPA navigation
 window.addEventListener('yt-navigate-finish', () => {
