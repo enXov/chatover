@@ -32,6 +32,7 @@ let isInitialized = false;
 let messageRenderer = null;
 let chatConnected = false;
 let resizeObserver = null;
+let isToggling = false; // Debounce lock for toggle button
 
 /**
  * Find element using multiple selectors (resilience against YouTube DOM changes)
@@ -155,8 +156,21 @@ function findLiveChatTeaserSection(teaserCarousel) {
 
 /**
  * Toggle the chat overlay visibility
+ * Uses debounce lock to prevent race conditions from rapid clicks
  */
 function toggleOverlay() {
+    // Debounce - prevent rapid double-clicks from causing issues
+    if (isToggling) {
+        console.log('ChatOver: Toggle already in progress, ignoring');
+        return;
+    }
+    isToggling = true;
+
+    // Release the lock after a short delay
+    setTimeout(() => {
+        isToggling = false;
+    }, 300);
+
     let overlay = document.getElementById('chatover-overlay');
 
     if (!overlay) {
@@ -164,6 +178,7 @@ function toggleOverlay() {
         const videoPlayer = findElement(VIDEO_SELECTORS);
         if (!videoPlayer) {
             console.log('ChatOver: Could not find video player');
+            isToggling = false;
             return;
         }
 
@@ -185,6 +200,16 @@ function toggleOverlay() {
             constrainOverlayToParent();
         });
         resizeObserver.observe(videoPlayer);
+
+        // Show overlay immediately (newly created, so show it)
+        overlay.classList.remove('chatover-hidden');
+
+        // Connect to chat
+        connectChat();
+
+        // Save visibility state
+        browser.storage.sync.set({ visible: true });
+        return;
     }
 
     overlay.classList.toggle('chatover-hidden');
@@ -204,14 +229,8 @@ function toggleOverlay() {
  */
 function initializeChat(overlay) {
     const messagesContainer = overlay.querySelector('.chatover-messages');
-    const placeholder = messagesContainer.querySelector('.chatover-placeholder');
 
-    // Remove placeholder
-    if (placeholder) {
-        placeholder.remove();
-    }
-
-    // Create message renderer
+    // Create message renderer (will handle placeholder removal when messages arrive)
     messageRenderer = new MessageRenderer(messagesContainer);
 
     // Set up input handling
@@ -250,6 +269,12 @@ async function connectChat() {
         if (state === ConnectionState.CONNECTED) {
             chatConnected = true;
             enableInput(overlay);
+
+            // Remove loading placeholder now that we're connected
+            const placeholder = overlay.querySelector('.chatover-placeholder');
+            if (placeholder) {
+                placeholder.remove();
+            }
         } else if (state === ConnectionState.ERROR || state === ConnectionState.ENDED) {
             chatConnected = false;
             disableInput(overlay);
@@ -421,7 +446,8 @@ function createOverlay() {
         </div>
         <div class="chatover-messages">
             <div class="chatover-placeholder">
-                Connecting to chat...
+                <div class="chatover-loading-spinner"></div>
+                <div class="chatover-loading-text">Connecting to chat...</div>
             </div>
         </div>
         <div class="chatover-input-container">
