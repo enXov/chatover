@@ -117,24 +117,17 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  /* Hide scrollbar - Firefox */
+  scrollbar-width: none;
+  /* Hide scrollbar - IE/Edge */
+  -ms-overflow-style: none;
 }
 
+/* Hide scrollbar - Chrome, Safari, Opera, Brave and other WebKit browsers */
 .chatover-messages::-webkit-scrollbar {
-  width: 6px;
-}
-
-.chatover-messages::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 3px;
-}
-
-.chatover-messages::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-}
-
-.chatover-messages::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 /* Placeholder */
