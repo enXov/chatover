@@ -295,10 +295,14 @@ function setupInputHandler(input) {
                 if (result.success) {
                     input.value = '';
                 } else {
-                    console.log('ChatOver: Failed to send message:', result.error);
+                    console.error('ChatOver: Failed to send message:', result.error);
 
                     // Show specific error message based on error type
-                    if (result.error === 'not_allowed') {
+                    if (result.error === 'not_signed_in') {
+                        if (messageRenderer) {
+                            messageRenderer.showStatus('Cannot send: Sign in to YouTube to chat', 'error');
+                        }
+                    } else if (result.error === 'not_allowed') {
                         if (messageRenderer) {
                             messageRenderer.showStatus('Cannot send: Members-only or restricted chat', 'error');
                         }

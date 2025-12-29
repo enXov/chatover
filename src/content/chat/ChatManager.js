@@ -128,10 +128,16 @@ export class ChatManager {
             console.log('ChatOver: Message sent via youtubei.js');
             return { success: true };
         } catch (error) {
-            console.log('ChatOver: Failed to send message:', error);
+            console.error('ChatOver: Failed to send message:', error);
             // Don't emit generic error - let the caller handle send-specific errors
             // Check for common error types
             const errorMsg = error.message || error.toString();
+
+            // 401 = Not signed in
+            if (errorMsg.includes('401') || errorMsg.includes('Unauthorized')) {
+                return { success: false, error: 'not_signed_in' };
+            }
+
             // DimChatItemAction = subscribers-only mode error
             if (errorMsg.includes('not allowed') || errorMsg.includes('permission') || errorMsg.includes('subscriber') || errorMsg.includes('DimChatItemAction')) {
                 return { success: false, error: 'not_allowed' };
