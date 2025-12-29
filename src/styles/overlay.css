@@ -314,6 +314,36 @@
   background: rgba(15, 157, 88, 0.25);
 }
 
+/* Gift Messages (Membership Gifting) */
+.chatover-message-gift {
+  border-left: 3px solid #9c27b0;
+  background: rgba(156, 39, 176, 0.15);
+}
+
+.chatover-message-gift:hover {
+  background: rgba(156, 39, 176, 0.25);
+}
+
+/* Gift Purchase - Someone gifted memberships */
+.chatover-message-gift-purchase {
+  border-left-color: #e040fb;
+  background: rgba(224, 64, 251, 0.15);
+}
+
+.chatover-message-gift-purchase:hover {
+  background: rgba(224, 64, 251, 0.25);
+}
+
+/* Gift Redemption - Someone received a gifted membership */
+.chatover-message-gift-redemption {
+  border-left-color: #7c4dff;
+  background: rgba(124, 77, 255, 0.15);
+}
+
+.chatover-message-gift-redemption:hover {
+  background: rgba(124, 77, 255, 0.25);
+}
+
 /* Author Role Colors - YouTube Live Chat Style */
 .chatover-author-owner {
   color: #ffd600 !important;

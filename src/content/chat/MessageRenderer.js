@@ -107,6 +107,12 @@ export class MessageRenderer {
             }
         } else if (message.type === MessageType.MEMBERSHIP) {
             el.classList.add('chatover-message-membership');
+        } else if (message.type === MessageType.GIFT_PURCHASE) {
+            el.classList.add('chatover-message-gift');
+            el.classList.add('chatover-message-gift-purchase');
+        } else if (message.type === MessageType.GIFT_REDEMPTION) {
+            el.classList.add('chatover-message-gift');
+            el.classList.add('chatover-message-gift-redemption');
         }
 
         // Build message HTML

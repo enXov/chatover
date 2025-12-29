@@ -12,6 +12,8 @@ export const MessageType = {
     PAID: 'paid',
     STICKER: 'sticker',
     MEMBERSHIP: 'membership',
+    GIFT_PURCHASE: 'gift_purchase',
+    GIFT_REDEMPTION: 'gift_redemption',
     SYSTEM: 'system'
 };
 
@@ -48,6 +50,12 @@ export class MessageParser {
 
             case 'LiveChatMembershipItem':
                 return this._parseMembershipMessage(item.as(YTNodes.LiveChatMembershipItem));
+
+            case 'LiveChatSponsorshipsGiftPurchaseAnnouncement':
+                return this._parseGiftPurchaseMessage(item);
+
+            case 'LiveChatSponsorshipsGiftRedemptionAnnouncement':
+                return this._parseGiftRedemptionMessage(item);
 
             default:
                 // Unsupported message type
@@ -132,6 +140,59 @@ export class MessageParser {
                 runs: []
             },
             timestamp: new Date()
+        };
+    }
+
+    /**
+     * Parse a membership gift purchase announcement (someone gifted memberships)
+     * @private
+     */
+    _parseGiftPurchaseMessage(item) {
+        // Extract header info - contains info about who gifted and how many
+        const headerText = item.header?.primary_text?.toString() ||
+            item.primary_text?.toString() ||
+            'Gifted memberships!';
+
+        return {
+            id: item.id || this._generateId(),
+            type: MessageType.GIFT_PURCHASE,
+            author: this._parseAuthor(item.header?.author || item.author),
+            badges: this._parseBadges(item.header?.author || item.author),
+            message: {
+                text: headerText,
+                runs: []
+            },
+            timestamp: new Date(),
+            giftInfo: {
+                isGift: true,
+                type: 'purchase'
+            }
+        };
+    }
+
+    /**
+     * Parse a membership gift redemption announcement (someone received a gifted membership)
+     * @private
+     */
+    _parseGiftRedemptionMessage(item) {
+        const messageText = item.message?.toString() ||
+            item.primary_text?.toString() ||
+            'Received a gifted membership!';
+
+        return {
+            id: item.id || this._generateId(),
+            type: MessageType.GIFT_REDEMPTION,
+            author: this._parseAuthor(item.author),
+            badges: this._parseBadges(item.author),
+            message: {
+                text: messageText,
+                runs: []
+            },
+            timestamp: new Date(),
+            giftInfo: {
+                isGift: true,
+                type: 'redemption'
+            }
         };
     }
 
@@ -225,7 +286,9 @@ export class MessageParser {
             return { text: '', runs: [] };
         }
 
-        const text = message.toString();
+        // youtubei.js returns 'N/A' for empty messages, treat it as empty
+        const rawText = message.toString();
+        const text = rawText === 'N/A' ? '' : rawText;
         const runs = [];
 
         // Try to get the runs (text/emote segments)
