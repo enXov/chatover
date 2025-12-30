@@ -22,9 +22,22 @@ export class MessageRenderer {
         this.maxMessages = options.maxMessages || DEFAULT_MAX_MESSAGES;
         this.messages = [];
         this.autoScroll = true;
+        this._scrollHandler = null;
 
         // Track scroll position for auto-scroll behavior
         this._setupScrollTracking();
+    }
+
+    /**
+     * Destroy the renderer and clean up event listeners
+     */
+    destroy() {
+        if (this._scrollHandler && this.container) {
+            this.container.removeEventListener('scroll', this._scrollHandler);
+            this._scrollHandler = null;
+        }
+        this.clear();
+        this.container = null;
     }
 
     /**
@@ -225,11 +238,12 @@ export class MessageRenderer {
      * @private
      */
     _setupScrollTracking() {
-        this.container.addEventListener('scroll', () => {
+        this._scrollHandler = () => {
             // Check if user scrolled up (disable auto-scroll)
             const isNearBottom = this.container.scrollHeight - this.container.scrollTop - this.container.clientHeight < 50;
             this.autoScroll = isNearBottom;
-        });
+        };
+        this.container.addEventListener('scroll', this._scrollHandler);
     }
 
     /**

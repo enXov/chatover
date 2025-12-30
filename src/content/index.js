@@ -4,7 +4,7 @@
  */
 
 import browser from 'webextension-polyfill';
-import { getChatManager, ConnectionState } from './chat/index.js';
+import { getChatManager, ConnectionState, resetMessageSender } from './chat/index.js';
 import { MessageRenderer } from './chat/MessageRenderer.js';
 
 // Selectors for YouTube elements
@@ -36,6 +36,12 @@ let messageRenderer = null;
 let chatConnected = false;
 let resizeObserver = null;
 let isToggling = false; // Debounce lock for toggle button
+
+// Document-level event handlers (stored for cleanup)
+let dragMoveHandler = null;
+let dragUpHandler = null;
+let resizeMoveHandler = null;
+let resizeUpHandler = null;
 
 /**
  * Find element using multiple selectors (resilience against YouTube DOM changes)
@@ -615,7 +621,12 @@ function makeDraggable(element) {
         e.preventDefault();
     });
 
-    document.addEventListener('mousemove', (e) => {
+    // Remove old handlers if they exist (prevents duplicates)
+    if (dragMoveHandler) document.removeEventListener('mousemove', dragMoveHandler);
+    if (dragUpHandler) document.removeEventListener('mouseup', dragUpHandler);
+
+    // Create and store handlers for later cleanup
+    dragMoveHandler = (e) => {
         if (!isDragging) return;
 
         const deltaX = e.clientX - startX;
@@ -636,9 +647,9 @@ function makeDraggable(element) {
         element.style.top = `${newY}px`;
         element.style.right = 'auto';
         element.style.bottom = 'auto';
-    });
+    };
 
-    document.addEventListener('mouseup', () => {
+    dragUpHandler = () => {
         if (isDragging) {
             isDragging = false;
             element.style.cursor = 'default';
@@ -654,7 +665,10 @@ function makeDraggable(element) {
                 });
             }
         }
-    });
+    };
+
+    document.addEventListener('mousemove', dragMoveHandler);
+    document.addEventListener('mouseup', dragUpHandler);
 }
 
 /**
@@ -675,7 +689,12 @@ function makeResizable(element) {
         e.stopPropagation();
     });
 
-    document.addEventListener('mousemove', (e) => {
+    // Remove old handlers if they exist (prevents duplicates)
+    if (resizeMoveHandler) document.removeEventListener('mousemove', resizeMoveHandler);
+    if (resizeUpHandler) document.removeEventListener('mouseup', resizeUpHandler);
+
+    // Create and store handlers for later cleanup
+    resizeMoveHandler = (e) => {
         if (!isResizing) return;
 
         const deltaX = e.clientX - startX;
@@ -687,9 +706,9 @@ function makeResizable(element) {
 
         element.style.width = `${newWidth}px`;
         element.style.height = `${newHeight}px`;
-    });
+    };
 
-    document.addEventListener('mouseup', () => {
+    resizeUpHandler = () => {
         if (isResizing) {
             isResizing = false;
 
@@ -698,7 +717,10 @@ function makeResizable(element) {
                 size: { width: element.offsetWidth, height: element.offsetHeight }
             });
         }
-    });
+    };
+
+    document.addEventListener('mousemove', resizeMoveHandler);
+    document.addEventListener('mouseup', resizeUpHandler);
 }
 
 /**
@@ -775,10 +797,36 @@ function cleanup() {
         resizeObserver = null;
     }
 
+    // Remove document-level event listeners (prevent memory leaks)
+    if (dragMoveHandler) {
+        document.removeEventListener('mousemove', dragMoveHandler);
+        dragMoveHandler = null;
+    }
+    if (dragUpHandler) {
+        document.removeEventListener('mouseup', dragUpHandler);
+        dragUpHandler = null;
+    }
+    if (resizeMoveHandler) {
+        document.removeEventListener('mousemove', resizeMoveHandler);
+        resizeMoveHandler = null;
+    }
+    if (resizeUpHandler) {
+        document.removeEventListener('mouseup', resizeUpHandler);
+        resizeUpHandler = null;
+    }
+
+    // Clear message renderer properly (removes scroll listener)
+    if (messageRenderer) {
+        messageRenderer.destroy();
+        messageRenderer = null;
+    }
+
+    // Reset MessageSender singleton (clears stale iframe references)
+    resetMessageSender();
+
     if (overlay) overlay.remove();
     if (button) button.remove();
 
-    messageRenderer = null;
     isInitialized = false;
     isInitializing = false;
     chatConnected = false;

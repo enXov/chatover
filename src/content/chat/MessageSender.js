@@ -160,6 +160,16 @@ export class MessageSender {
     _delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
+
+    /**
+     * Reset the sender (clear stale references)
+     * Should be called during navigation cleanup
+     */
+    reset() {
+        this.chatFrame = null;
+        this.chatDocument = null;
+        this.isReady = false;
+    }
 }
 
 // Singleton instance
@@ -173,4 +183,13 @@ export function getMessageSender() {
         senderInstance = new MessageSender();
     }
     return senderInstance;
+}
+
+/**
+ * Reset the MessageSender singleton (clears stale references)
+ */
+export function resetMessageSender() {
+    if (senderInstance) {
+        senderInstance.reset();
+    }
 }
