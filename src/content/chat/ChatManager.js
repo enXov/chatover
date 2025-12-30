@@ -75,7 +75,6 @@ export class ChatManager {
 
                 // Check if we were cancelled/replaced while awaiting
                 if (this.connectionToken !== myToken) {
-                    console.log('ChatOver: Connection attempt cancelled (innertube init)');
                     return;
                 }
 
@@ -87,7 +86,6 @@ export class ChatManager {
 
             // Check if we were cancelled/replaced while awaiting
             if (this.connectionToken !== myToken) {
-                console.log('ChatOver: Connection attempt cancelled (get info)');
                 return;
             }
 
@@ -111,7 +109,6 @@ export class ChatManager {
         } catch (error) {
             // Check if we were cancelled - if so, ignore error
             if (this.connectionToken !== myToken) {
-                console.log('ChatOver: Connection attempt cancelled during error:', error);
                 return;
             }
 
@@ -146,8 +143,6 @@ export class ChatManager {
             error: [],
             metadata: []
         };
-
-        console.log('ChatOver: Disconnected from live chat and cleared listeners');
     }
 
     /**
@@ -161,14 +156,12 @@ export class ChatManager {
         }
 
         if (!this.livechat || this.connectionState !== ConnectionState.CONNECTED) {
-            console.log('ChatOver: Cannot send message - not connected to chat');
             return { success: false, error: 'not_connected' };
         }
 
         try {
             // Use youtubei.js LiveChat sendMessage method
             await this.livechat.sendMessage(text.trim());
-            console.log('ChatOver: Message sent via youtubei.js');
             return { success: true };
         } catch (error) {
             console.error('ChatOver: Failed to send message:', error);
@@ -224,8 +217,8 @@ export class ChatManager {
      */
     _setupLiveChatListeners() {
         // Handle initial chat data (pinned messages, viewer info)
-        this.livechat.on('start', (initialData) => {
-            console.log('ChatOver: Live chat started', initialData.viewer_name || 'Guest');
+        this.livechat.on('start', () => {
+            // Initial data received
         });
 
         // Handle new chat messages/actions
@@ -246,7 +239,6 @@ export class ChatManager {
 
             // Handle transient network errors (like Failed to fetch)
             if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
-                console.log('ChatOver: Transient network error, attempting to resume chat...');
 
                 // Don't change state to ERROR, keep it as CONNECTED but maybe show a warning?
                 // We'll just try to restart the polling if it stopped
@@ -268,7 +260,6 @@ export class ChatManager {
                 errorMsg.includes('sendMessage') ||
                 errorMsg.includes('not allowed') ||
                 errorMsg.includes('permission')) {
-                console.log('ChatOver: Send-related error, ignoring (not a connection issue)');
                 return;
             }
 
@@ -278,7 +269,6 @@ export class ChatManager {
 
         // Handle stream end
         this.livechat.on('end', () => {
-            console.log('ChatOver: Live stream ended');
             this._setState(ConnectionState.ENDED);
         });
     }

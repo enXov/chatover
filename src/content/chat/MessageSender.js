@@ -43,7 +43,6 @@ export class MessageSender {
             this.chatFrame = this._findElement(document, CHAT_FRAME_SELECTORS);
 
             if (!this.chatFrame) {
-                console.log('ChatOver: Chat frame not found');
                 return false;
             }
 
@@ -51,17 +50,14 @@ export class MessageSender {
             try {
                 this.chatDocument = this.chatFrame.contentDocument || this.chatFrame.contentWindow?.document;
             } catch (e) {
-                console.log('ChatOver: Cannot access chat frame (cross-origin)');
                 return false;
             }
 
             if (!this.chatDocument) {
-                console.log('ChatOver: Chat document not accessible');
                 return false;
             }
 
             this.isReady = true;
-            console.log('ChatOver: Message sender initialized');
             return true;
 
         } catch (error) {
@@ -86,7 +82,6 @@ export class MessageSender {
         }
 
         if (!this.isReady) {
-            console.log('ChatOver: Sender not ready, cannot send message');
             return false;
         }
 
@@ -94,7 +89,6 @@ export class MessageSender {
             // Find the chat input
             const input = this._findElement(this.chatDocument, CHAT_INPUT_SELECTORS);
             if (!input) {
-                console.log('ChatOver: Chat input not found');
                 return false;
             }
 
@@ -113,14 +107,12 @@ export class MessageSender {
             // Find and click the send button
             const sendButton = this._findElement(this.chatDocument, SEND_BUTTON_SELECTORS);
             if (!sendButton) {
-                console.log('ChatOver: Send button not found');
                 return false;
             }
 
             // Click the send button
             sendButton.click();
 
-            console.log('ChatOver: Message sent');
             return true;
 
         } catch (error) {
