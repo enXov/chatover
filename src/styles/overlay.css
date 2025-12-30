@@ -391,20 +391,20 @@
 }
 
 /* Author Role Colors - YouTube Live Chat Style */
-.chatover-author-owner {
-  color: #ffd600 !important;
-}
-
-.chatover-author-mod {
-  color: #5e84f1 !important;
+.chatover-author-verified {
+  color: #aaa !important;
 }
 
 .chatover-author-member {
   color: #2ba640 !important;
 }
 
-.chatover-author-verified {
-  color: #aaa !important;
+.chatover-author-mod {
+  color: #5e84f1 !important;
+}
+
+.chatover-author-owner {
+  color: #ffd600 !important;
 }
 
 /* Badge Icons */

@@ -220,10 +220,29 @@ export class MessageParser {
             channelId: author.id || '',
             avatarUrl: avatarUrl,
             isModerator: author.is_moderator || false,
-            isMember: author.is_member || false,
+            isMember: this._isMember(author),
             isOwner: author.is_owner || false,
             isVerified: author.is_verified || false
         };
+    }
+
+    /**
+     * Check if author is a member (checking both flag and badges)
+     * @private
+     */
+    _isMember(author) {
+        if (author.is_member) return true;
+
+        // Fallback: Check badges for "Member" tooltip
+        if (author.badges) {
+            for (const badge of author.badges) {
+                const tooltip = badge.tooltip || '';
+                if (tooltip.includes('Member') || tooltip.includes('member')) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -263,7 +282,16 @@ export class MessageParser {
         // Parse custom badges (member badges, etc.)
         if (author.badges) {
             for (const badge of author.badges) {
-                const badgeUrl = badge.thumbnails?.[0]?.url;
+                // youtubei.js structure can vary for badges
+                // Check multiple possible paths for the image URL
+                const badgeUrl = badge.thumbnails?.[0]?.url ||
+                    badge.custom_thumbnail?.thumbnails?.[0]?.url ||
+                    badge.custom_thumbnail?.[0]?.url ||
+                    badge.image?.thumbnails?.[0]?.url ||
+                    badge.icon?.thumbnails?.[0]?.url ||
+                    badge.thumbnail?.url ||
+                    badge.url;
+
                 if (badgeUrl) {
                     badges.push({
                         type: 'custom',
