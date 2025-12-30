@@ -453,7 +453,8 @@
   position: relative;
 }
 
-.chatover-overlay:hover .chatover-input-container {
+.chatover-overlay:hover .chatover-input-container,
+.chatover-input-container:focus-within {
   opacity: 1;
 }
 
@@ -490,7 +491,6 @@
   flex: 1;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 0;
   padding: 8px 4px;
   color: #fff;
@@ -504,8 +504,6 @@
 }
 
 .chatover-input:focus {
-  border-bottom-color: rgba(255, 255, 255, 0.4);
-  /* keep same color, no blue */
   box-shadow: none;
 }
 
