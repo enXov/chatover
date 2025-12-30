@@ -463,7 +463,8 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(102, 126, 234, 0.6);
+  /* blue like focus border */
   margin-top: 2px;
 }
 
@@ -503,7 +504,8 @@
 }
 
 .chatover-input:focus {
-  border-bottom-color: #667eea;
+  border-bottom-color: rgba(255, 255, 255, 0.4);
+  /* keep same color, no blue */
   box-shadow: none;
 }
 
