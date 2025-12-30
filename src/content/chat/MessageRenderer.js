@@ -128,6 +128,26 @@ export class MessageRenderer {
             el.classList.add('chatover-message-gift-redemption');
         }
 
+        // Build membership info HTML if present
+        let membershipInfoHtml = '';
+        if (message.type === MessageType.MEMBERSHIP && message.membershipInfo) {
+            const duration = this._escapeHtml(message.membershipInfo.duration);
+            const level = message.membershipInfo.level ? this._escapeHtml(message.membershipInfo.level) : '';
+            membershipInfoHtml = `
+                <div class="chatover-membership-info">
+                    <span class="chatover-membership-duration">${duration}</span>
+                    ${level ? `<span class="chatover-membership-level">${level}</span>` : ''}
+                </div>
+            `;
+        }
+
+        // Render user message if available (for membership, check if there's actual content)
+        const hasMessageContent = message.message &&
+            (message.message.text || (message.message.runs && message.message.runs.length > 0));
+        const messageTextHtml = hasMessageContent
+            ? `<div class="chatover-message-text">${this._renderMessageContent(message.message)}</div>`
+            : '';
+
         // Build message HTML
         el.innerHTML = `
             <img class="chatover-message-avatar" 
@@ -142,9 +162,8 @@ export class MessageRenderer {
                     </span>
                     ${message.paidInfo ? `<span class="chatover-message-amount">${this._escapeHtml(message.paidInfo.amount)}</span>` : ''}
                 </div>
-                <div class="chatover-message-text">
-                    ${this._renderMessageContent(message.message)}
-                </div>
+                ${membershipInfoHtml}
+                ${messageTextHtml}
             </div>
         `;
 

@@ -128,18 +128,33 @@ export class MessageParser {
     /**
      * Parse a membership message
      * @private
+     * 
+     * YouTube LiveChatMembershipItem structure:
+     * - header_primary_text: Duration like "Member for 3 months" or "New member"
+     * - header_subtext: Membership tier/level like "Bronze Member"
+     * - message: Optional user message
      */
     _parseMembershipMessage(item) {
+        // Get duration text (e.g., "Member for 3 months" or "New member")
+        const durationText = item.header_primary_text?.toString() || 'New member';
+
+        // Get membership tier/level (e.g., "Bronze Member")
+        const membershipLevel = item.header_subtext?.toString() || '';
+
+        // Get optional user message
+        const userMessage = this._parseMessageContent(item.message);
+
         return {
             id: item.id || this._generateId(),
             type: MessageType.MEMBERSHIP,
             author: this._parseAuthor(item.author),
             badges: this._parseBadges(item.author),
-            message: {
-                text: item.header_primary_text?.toString() || 'New member!',
-                runs: []
-            },
-            timestamp: new Date()
+            message: userMessage,
+            timestamp: new Date(),
+            membershipInfo: {
+                duration: durationText,
+                level: membershipLevel
+            }
         };
     }
 
