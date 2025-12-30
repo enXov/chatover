@@ -77,6 +77,59 @@ function isLiveStream() {
 }
 
 /**
+ * Check if current URL is a YouTube watch page
+ */
+function isWatchPage() {
+    return window.location.pathname === '/watch' && getVideoId() !== null;
+}
+
+/**
+ * Wait for live stream indicators to appear in the DOM
+ * This handles the case where YouTube's player loads asynchronously
+ * Only checks for the live badge - chat container exists on all videos
+ */
+function waitForLiveStreamIndicator(timeout = 15000) {
+    return new Promise((resolve) => {
+        // Check immediately first
+        if (isLiveStream()) {
+            resolve(true);
+            return;
+        }
+
+        let checkInterval;
+
+        const observer = new MutationObserver(() => {
+            // Check live badge only (chat container exists on non-live videos too)
+            if (isLiveStream()) {
+                observer.disconnect();
+                if (checkInterval) clearInterval(checkInterval);
+                resolve(true);
+                return;
+            }
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+
+        // Also poll periodically as backup (some style changes don't trigger mutation)
+        checkInterval = setInterval(() => {
+            if (isLiveStream()) {
+                observer.disconnect();
+                clearInterval(checkInterval);
+                resolve(true);
+            }
+        }, 500);
+
+        // Timeout
+        setTimeout(() => {
+            observer.disconnect();
+            if (checkInterval) clearInterval(checkInterval);
+            resolve(false);
+        }, timeout);
+    });
+}
+
+
+/**
  * Create the "Open Panel" button for the overlay
  * @param {boolean} forTeaserCarousel - If true, style for teaser carousel placement
  */
@@ -761,10 +814,27 @@ async function init() {
         return;
     }
 
-    // Check if this is a live stream
-    if (!isLiveStream()) {
+    // Check if we're on a watch page
+    if (!isWatchPage()) {
+        console.log('ChatOver: Not a watch page, inactive.');
+        isInitializing = false;
+        return;
+    }
+
+    // Wait for live stream indicators (handles async YouTube player loading)
+    console.log('ChatOver: Waiting for live stream indicators...');
+    const isLive = await waitForLiveStreamIndicator(15000);
+
+    // Check token again after async wait
+    if (currentInitToken !== thisInitToken) {
+        console.log('ChatOver: Init aborted after wait - session invalidated');
+        isInitializing = false;
+        return;
+    }
+
+    if (!isLive) {
         console.log('ChatOver: Not a live stream, inactive.');
-        cleanup(); // cleanup resets isInitializing
+        isInitializing = false;
         return;
     }
 
