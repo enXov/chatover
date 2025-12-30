@@ -364,6 +364,32 @@ function updateConnectionStatus(overlay, state) {
 function setupInputHandler(input) {
     if (!input) return;
 
+    const MAX_MESSAGE_LENGTH = 200;
+
+    // Get progress bar element
+    const progressBar = input.parentElement?.querySelector('.chatover-input-progress-bar');
+
+    // Update progress bar based on input length
+    const updateProgressBar = () => {
+        if (!progressBar) return;
+
+        const length = input.value.length;
+        const percentage = Math.min((length / MAX_MESSAGE_LENGTH) * 100, 100);
+
+        progressBar.style.width = `${percentage}%`;
+
+        // Update color based on percentage
+        progressBar.classList.remove('warning', 'danger');
+        if (percentage >= 95) {
+            progressBar.classList.add('danger');
+        } else if (percentage >= 80) {
+            progressBar.classList.add('warning');
+        }
+    };
+
+    // Listen for input changes
+    input.addEventListener('input', updateProgressBar);
+
     input.addEventListener('keydown', async (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -376,6 +402,7 @@ function setupInputHandler(input) {
 
                 if (result.success) {
                     input.value = '';
+                    updateProgressBar(); // Reset progress bar
                 } else {
                     console.error('ChatOver: Failed to send message:', result.error);
 
@@ -467,7 +494,8 @@ function createOverlay() {
             </div>
         </div>
         <div class="chatover-input-container">
-            <input type="text" class="chatover-input" placeholder="Connecting..." disabled />
+            <input type="text" class="chatover-input" placeholder="Connecting..." disabled maxlength="200" />
+            <div class="chatover-input-progress"><div class="chatover-input-progress-bar"></div></div>
         </div>
         <div class="chatover-resize"></div>
     `;

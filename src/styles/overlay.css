@@ -442,17 +442,47 @@
 /* Input Container */
 .chatover-input-container {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  gap: 0;
   padding: 12px;
   background: transparent;
   border-top: none;
   flex-shrink: 0;
   opacity: 0;
   transition: opacity 0.2s ease;
+  position: relative;
 }
 
 .chatover-overlay:hover .chatover-input-container {
   opacity: 1;
+}
+
+/* Message Length Progress Bar */
+.chatover-input-progress {
+  position: relative;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  margin-top: 2px;
+}
+
+.chatover-input-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: #4ade80;
+  /* green */
+  transition: width 0.1s ease, background-color 0.2s ease;
+}
+
+.chatover-input-progress-bar.warning {
+  background: #fbbf24;
+  /* yellow/orange */
+}
+
+.chatover-input-progress-bar.danger {
+  background: #ef4444;
+  /* red */
 }
 
 .chatover-input {
