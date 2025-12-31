@@ -74,9 +74,11 @@ export class MessageParser {
             author: this._parseAuthor(item.author),
             badges: this._parseBadges(item.author),
             message: this._parseMessageContent(item.message),
-            timestamp: item.timestamp ? new Date(item.timestamp) : new Date()
+            timestamp: item.timestamp ? new Date(item.timestamp) : new Date(),
+            replyTo: this._parseReplyTarget(item)
         };
     }
+
 
     /**
      * Parse a Super Chat (paid message)
@@ -402,5 +404,42 @@ export class MessageParser {
      */
     _generateId() {
         return 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    /**
+     * Parse reply target from before_content_buttons
+     * YouTube puts reply chips (with @username) in before_content_buttons
+     * @private
+     */
+    _parseReplyTarget(item) {
+        // Check if before_content_buttons exists and has items
+        if (!item.before_content_buttons || item.before_content_buttons.length === 0) {
+            return null;
+        }
+
+        // Look for a button with a title that looks like a reply target (@username)
+        for (const button of item.before_content_buttons) {
+            const title = button.title || button.accessibility_text || '';
+
+            // Check if this looks like a reply target (starts with @ or contains user info)
+            if (title && (title.startsWith('@') || title.includes('@'))) {
+                return {
+                    username: title,
+                    // If there's channel info in the button's on_tap endpoint, extract it
+                    channelId: button.on_tap?.browse_endpoint?.browse_id || null
+                };
+            }
+
+            // Also check tooltip for reply info
+            const tooltip = button.tooltip || '';
+            if (tooltip && (tooltip.startsWith('@') || tooltip.includes('@'))) {
+                return {
+                    username: tooltip,
+                    channelId: button.on_tap?.browse_endpoint?.browse_id || null
+                };
+            }
+        }
+
+        return null;
     }
 }

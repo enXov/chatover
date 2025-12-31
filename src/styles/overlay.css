@@ -427,6 +427,29 @@
   color: #ffd600 !important;
 }
 
+/* Reply Target Chip */
+.chatover-reply-target {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(46, 125, 50, 0.6);
+  color: #a5d6a7;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  margin-left: 4px;
+}
+
+.chatover-reply-icon {
+  font-size: 10px;
+  opacity: 0.9;
+}
+
+.chatover-reply-username {
+  font-weight: 500;
+}
+
+
 /* Badge Icons */
 .chatover-badge-owner,
 .chatover-badge-moderator,

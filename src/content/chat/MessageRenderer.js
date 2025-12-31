@@ -148,6 +148,14 @@ export class MessageRenderer {
             ? `<div class="chatover-message-text">${this._renderMessageContent(message.message)}</div>`
             : '';
 
+        // Build reply target HTML if present
+        const replyToHtml = message.replyTo
+            ? `<span class="chatover-reply-target" title="Replying to ${this._escapeHtml(message.replyTo.username)}">
+                <span class="chatover-reply-icon">↩</span>
+                <span class="chatover-reply-username">${this._escapeHtml(message.replyTo.username)}</span>
+               </span>`
+            : '';
+
         // Build message HTML
         el.innerHTML = `
             <img class="chatover-message-avatar" 
@@ -160,12 +168,14 @@ export class MessageRenderer {
                     <span class="chatover-message-author ${this._getAuthorClass(message.author)}">
                         ${this._escapeHtml(message.author.name)}
                     </span>
+                    ${replyToHtml}
                     ${message.paidInfo ? `<span class="chatover-message-amount">${this._escapeHtml(message.paidInfo.amount)}</span>` : ''}
                 </div>
                 ${membershipInfoHtml}
                 ${messageTextHtml}
             </div>
         `;
+
 
         return el;
     }
