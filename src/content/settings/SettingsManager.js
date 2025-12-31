@@ -7,10 +7,21 @@ import browser from 'webextension-polyfill';
 
 // Default settings
 const DEFAULT_SETTINGS = {
-    usernameFontSize: 13,   // Username font size
-    messageFontSize: 14,    // Message text font size
-    transparency: 0.5,      // Background opacity (0 = transparent, 1 = fully opaque)
-    textOutline: true       // Text shadow/outline toggle
+    usernameFontSize: 13,      // Username font size
+    messageFontSize: 14,       // Message text font size
+    inputFontSize: 13,         // Input field font size
+    transparency: 0.5,         // Background opacity (0 = transparent, 1 = fully opaque)
+    textOutline: true,         // Text shadow/outline toggle
+    backgroundColor: '#000000', // Background color (hex)
+    messageTextColor: '#eeeeee', // Message text color (hex)
+    outlineThickness: 1,       // Text outline thickness in pixels
+    outlineColor: '#000000',   // Text outline color (hex)
+    // Username colors by role
+    ownerColor: '#ffd600',     // Channel owner username color (yellow)
+    moderatorColor: '#5e84f1', // Moderator username color (blue)
+    memberColor: '#2ba640',    // Member username color (green)
+    verifiedColor: '#aaaaaa',  // Verified channel username color (gray)
+    regularUserColor: '#aaaaaa' // Regular user username color (gray)
 };
 
 // Debounce timer for saving
@@ -152,7 +163,18 @@ export function applySettingsToOverlay(overlay) {
     // Apply CSS custom properties for real-time updates
     overlay.style.setProperty('--chatover-username-font-size', `${settings.usernameFontSize}px`);
     overlay.style.setProperty('--chatover-message-font-size', `${settings.messageFontSize}px`);
+    overlay.style.setProperty('--chatover-input-font-size', `${settings.inputFontSize}px`);
     overlay.style.setProperty('--chatover-transparency', settings.transparency);
+    overlay.style.setProperty('--chatover-background-color', settings.backgroundColor);
+    overlay.style.setProperty('--chatover-message-text-color', settings.messageTextColor);
+    overlay.style.setProperty('--chatover-outline-thickness', `${settings.outlineThickness}px`);
+    overlay.style.setProperty('--chatover-outline-color', settings.outlineColor);
+    // Username colors by role
+    overlay.style.setProperty('--chatover-owner-color', settings.ownerColor);
+    overlay.style.setProperty('--chatover-moderator-color', settings.moderatorColor);
+    overlay.style.setProperty('--chatover-member-color', settings.memberColor);
+    overlay.style.setProperty('--chatover-verified-color', settings.verifiedColor);
+    overlay.style.setProperty('--chatover-regular-user-color', settings.regularUserColor);
 
     // Apply text outline class
     if (settings.textOutline) {

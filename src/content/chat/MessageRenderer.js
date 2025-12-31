@@ -238,15 +238,17 @@ export class MessageRenderer {
 
     /**
      * Get author class for styling
+     * Priority: Owner > Moderator > Member > Verified
+     * Only the highest priority role is applied to avoid color conflicts
      * @private
      */
     _getAuthorClass(author) {
-        const classes = [];
-        if (author.isOwner) classes.push('chatover-author-owner');
-        if (author.isModerator) classes.push('chatover-author-mod');
-        if (author.isMember) classes.push('chatover-author-member');
-        if (author.isVerified) classes.push('chatover-author-verified');
-        return classes.join(' ');
+        // Apply only the highest priority role
+        if (author.isOwner) return 'chatover-author-owner';
+        if (author.isModerator) return 'chatover-author-mod';
+        if (author.isMember) return 'chatover-author-member';
+        if (author.isVerified) return 'chatover-author-verified';
+        return '';
     }
 
     /**

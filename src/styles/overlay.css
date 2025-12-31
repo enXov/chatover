@@ -238,13 +238,13 @@
 .chatover-message-author {
   font-size: var(--chatover-username-font-size, 13px);
   font-weight: 600;
-  color: #aaa;
+  color: var(--chatover-regular-user-color, #aaa);
   text-shadow: none;
 }
 
 .chatover-message-text {
   font-size: var(--chatover-message-font-size, 14px);
-  color: #eee;
+  color: var(--chatover-message-text-color, #eee);
   word-wrap: break-word;
   text-shadow:
     -1px -1px 0 rgba(0, 0, 0, 0.8),
@@ -412,19 +412,19 @@
 
 /* Author Role Colors - YouTube Live Chat Style */
 .chatover-author-verified {
-  color: #aaa !important;
+  color: var(--chatover-verified-color, #aaa) !important;
 }
 
 .chatover-author-member {
-  color: #2ba640 !important;
+  color: var(--chatover-member-color, #2ba640) !important;
 }
 
 .chatover-author-mod {
-  color: #5e84f1 !important;
+  color: var(--chatover-moderator-color, #5e84f1) !important;
 }
 
 .chatover-author-owner {
-  color: #ffd600 !important;
+  color: var(--chatover-owner-color, #ffd600) !important;
 }
 
 /* Reply Target Chip */
@@ -537,7 +537,7 @@
   border-radius: 0;
   padding: 8px 4px;
   color: #fff;
-  font-size: 13px;
+  font-size: var(--chatover-input-font-size, 13px);
   outline: none;
   transition: all 0.2s ease;
 }
@@ -897,6 +897,35 @@
   transform: translateX(20px);
 }
 
+/* Color Picker */
+.chatover-settings-color {
+  width: 100%;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  background: transparent;
+  transition: border-color 0.2s ease;
+}
+
+.chatover-settings-color:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.chatover-settings-color::-webkit-color-swatch-wrapper {
+  padding: 4px;
+}
+
+.chatover-settings-color::-webkit-color-swatch {
+  border: none;
+  border-radius: 6px;
+}
+
+.chatover-settings-color::-moz-color-swatch {
+  border: none;
+  border-radius: 6px;
+}
+
 /* Settings Footer */
 .chatover-settings-footer {
   top: calc(50% + 130px);
@@ -939,26 +968,37 @@
 .chatover-overlay {
   --chatover-username-font-size: 13px;
   --chatover-message-font-size: 14px;
+  --chatover-input-font-size: 13px;
   --chatover-transparency: 0.5;
+  --chatover-background-color: #000000;
+  --chatover-message-text-color: #eeeeee;
+  --chatover-outline-thickness: 1px;
+  --chatover-outline-color: #000000;
+  /* Username colors by role */
+  --chatover-owner-color: #ffd600;
+  --chatover-moderator-color: #5e84f1;
+  --chatover-member-color: #2ba640;
+  --chatover-verified-color: #aaaaaa;
+  --chatover-regular-user-color: #aaaaaa;
 }
 
 /* Apply transparency to message backgrounds */
-/* transparency: 0 = no background, 1 = fully opaque black */
+/* transparency: 0 = no background, 1 = fully opaque */
 .chatover-message {
-  background: rgba(0, 0, 0, var(--chatover-transparency, 0.85));
+  background: color-mix(in srgb, var(--chatover-background-color) calc(var(--chatover-transparency, 0.85) * 100%), transparent);
 }
 
 .chatover-message:hover {
-  background: rgba(0, 0, 0, calc(var(--chatover-transparency, 0.85) + 0.1));
+  background: color-mix(in srgb, var(--chatover-background-color) calc((var(--chatover-transparency, 0.85) + 0.1) * 100%), transparent);
 }
 
 /* Text outline toggle class */
 .chatover-overlay.chatover-text-outline .chatover-message-text {
   text-shadow:
-    -1px -1px 0 rgba(0, 0, 0, 0.8),
-    1px -1px 0 rgba(0, 0, 0, 0.8),
-    -1px 1px 0 rgba(0, 0, 0, 0.8),
-    1px 1px 0 rgba(0, 0, 0, 0.8);
+    calc(-1 * var(--chatover-outline-thickness)) calc(-1 * var(--chatover-outline-thickness)) 0 var(--chatover-outline-color),
+    var(--chatover-outline-thickness) calc(-1 * var(--chatover-outline-thickness)) 0 var(--chatover-outline-color),
+    calc(-1 * var(--chatover-outline-thickness)) var(--chatover-outline-thickness) 0 var(--chatover-outline-color),
+    var(--chatover-outline-thickness) var(--chatover-outline-thickness) 0 var(--chatover-outline-color);
 }
 
 .chatover-overlay:not(.chatover-text-outline) .chatover-message-text {

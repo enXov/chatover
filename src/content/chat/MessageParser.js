@@ -239,7 +239,7 @@ export class MessageParser {
             isModerator: author.is_moderator || false,
             isMember: this._isMember(author),
             isOwner: author.is_owner || false,
-            isVerified: author.is_verified || false
+            isVerified: this._isVerified(author)
         };
     }
 
@@ -255,6 +255,25 @@ export class MessageParser {
             for (const badge of author.badges) {
                 const tooltip = badge.tooltip || '';
                 if (tooltip.includes('Member') || tooltip.includes('member')) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if author is verified (checking both flag and badges)
+     * @private
+     */
+    _isVerified(author) {
+        if (author.is_verified) return true;
+
+        // Fallback: Check badges for "Verified" tooltip or checkmark
+        if (author.badges) {
+            for (const badge of author.badges) {
+                const tooltip = badge.tooltip || '';
+                if (tooltip.includes('Verified') || tooltip.includes('verified') || tooltip === '✓') {
                     return true;
                 }
             }
