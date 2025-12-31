@@ -68,10 +68,6 @@ export class SettingsPanel {
     panel.className = 'chatover-settings-panel';
 
     panel.innerHTML = `
-      <div class="chatover-settings-header">
-        <span class="chatover-settings-title">ChatOver Settings</span>
-        <button class="chatover-settings-close" title="Close">✕</button>
-      </div>
       <div class="chatover-settings-content">
         <!-- Font Sizes Section -->
         <div class="chatover-settings-section">
@@ -144,6 +140,16 @@ export class SettingsPanel {
             <input type="color" class="chatover-settings-color" 
                    data-setting="messageTextColor" 
                    value="${settings.messageTextColor}">
+          </div>
+          
+          <div class="chatover-settings-group">
+            <label class="chatover-settings-label">
+              <span>Message Hover Color</span>
+              <span class="chatover-settings-value" data-for="messageHoverColor">${settings.messageHoverColor}</span>
+            </label>
+            <input type="color" class="chatover-settings-color" 
+                   data-setting="messageHoverColor" 
+                   value="${settings.messageHoverColor}">
           </div>
           
           <div class="chatover-settings-group chatover-settings-toggle-group">
@@ -252,10 +258,6 @@ export class SettingsPanel {
    * @param {HTMLElement} panel 
    */
   setupEventListeners(panel) {
-    // Close button
-    const closeBtn = panel.querySelector('.chatover-settings-close');
-    closeBtn.addEventListener('click', () => this.close());
-
     // Reset button
     const resetBtn = panel.querySelector('.chatover-settings-reset');
     resetBtn.addEventListener('click', async () => {
