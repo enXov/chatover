@@ -22,7 +22,10 @@ const DEFAULT_SETTINGS = {
     moderatorColor: '#5e84f1', // Moderator username color (blue)
     memberColor: '#2ba640',    // Member username color (green)
     verifiedColor: '#aaaaaa',  // Verified channel username color (gray)
-    regularUserColor: '#aaaaaa' // Regular user username color (gray)
+    regularUserColor: '#aaaaaa', // Regular user username color (gray)
+    // Avatar settings
+    avatarSize: 24,            // Avatar size in pixels
+    showAvatars: true          // Show/hide avatars
 };
 
 // Debounce timer for saving
@@ -177,12 +180,21 @@ export function applySettingsToOverlay(overlay) {
     overlay.style.setProperty('--chatover-member-color', settings.memberColor);
     overlay.style.setProperty('--chatover-verified-color', settings.verifiedColor);
     overlay.style.setProperty('--chatover-regular-user-color', settings.regularUserColor);
+    // Avatar settings
+    overlay.style.setProperty('--chatover-avatar-size', `${settings.avatarSize}px`);
 
     // Apply text outline class
     if (settings.textOutline) {
         overlay.classList.add('chatover-text-outline');
     } else {
         overlay.classList.remove('chatover-text-outline');
+    }
+
+    // Apply avatar visibility class
+    if (!settings.showAvatars) {
+        overlay.classList.add('chatover-hide-avatars');
+    } else {
+        overlay.classList.remove('chatover-hide-avatars');
     }
 }
 

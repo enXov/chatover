@@ -238,6 +238,32 @@ export class SettingsPanel {
                    value="${settings.regularUserColor}">
           </div>
         </div>
+        
+        <!-- Avatar Settings Section -->
+        <div class="chatover-settings-section">
+          <div class="chatover-settings-section-title">Avatar Settings</div>
+          
+          <div class="chatover-settings-group chatover-settings-toggle-group">
+            <label class="chatover-settings-label">
+              <span>Show Avatars</span>
+            </label>
+            <label class="chatover-settings-toggle">
+              <input type="checkbox" data-setting="showAvatars" ${settings.showAvatars ? 'checked' : ''}>
+              <span class="chatover-settings-toggle-slider"></span>
+            </label>
+          </div>
+          
+          <div class="chatover-settings-group">
+            <label class="chatover-settings-label">
+              <span>Avatar Size</span>
+              <span class="chatover-settings-value" data-for="avatarSize">${settings.avatarSize}px</span>
+            </label>
+            <input type="range" class="chatover-settings-slider" 
+                   data-setting="avatarSize" 
+                   min="16" max="32" step="2" 
+                   value="${settings.avatarSize}">
+          </div>
+        </div>
       </div>
       <div class="chatover-settings-footer">
         <button class="chatover-settings-btn chatover-settings-reset">Reset to Defaults</button>

@@ -207,10 +207,15 @@
 }
 
 .chatover-message-avatar {
-  width: 24px;
-  height: 24px;
+  width: var(--chatover-avatar-size, 24px);
+  height: var(--chatover-avatar-size, 24px);
   border-radius: 50%;
   flex-shrink: 0;
+}
+
+/* Hide avatars when disabled in settings */
+.chatover-hide-avatars .chatover-message-avatar {
+  display: none;
 }
 
 .chatover-message-content {
