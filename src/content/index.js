@@ -6,6 +6,13 @@
 import browser from 'webextension-polyfill';
 import { getChatManager, ConnectionState, resetMessageSender } from './chat/index.js';
 import { MessageRenderer } from './chat/MessageRenderer.js';
+import {
+  loadSettings,
+  addChangeListener,
+  removeChangeListener,
+  applySettingsToOverlay,
+  SettingsPanel
+} from './settings/index.js';
 
 // Selectors for YouTube elements
 const VIDEO_SELECTORS = [
@@ -30,6 +37,8 @@ let messageRenderer = null;
 let chatConnected = false;
 let resizeObserver = null;
 let isToggling = false; // Debounce lock for toggle button
+let settingsPanel = null; // Settings panel instance
+let settingsChangeListener = null; // Settings change listener
 
 // Document-level event handlers (stored for cleanup)
 let dragMoveHandler = null;
@@ -289,10 +298,14 @@ function toggleOverlay() {
 /**
  * Initialize chat components for the overlay
  */
-function initializeChat(overlay) {
+async function initializeChat(overlay) {
   const messagesContainer = overlay.querySelector('.chatover-messages');
 
-  // Create message renderer (will handle placeholder removal when messages arrive)
+  // Load and apply settings
+  await loadSettings();
+  applySettingsToOverlay(overlay);
+
+  // Create message renderer (uses default max messages of 50)
   messageRenderer = new MessageRenderer(messagesContainer);
 
   // Set up input handling
@@ -301,6 +314,12 @@ function initializeChat(overlay) {
 
   // Update connection status indicator
   updateConnectionStatus(overlay, ConnectionState.DISCONNECTED);
+
+  // Listen for settings changes
+  settingsChangeListener = (key, value) => {
+    handleSettingsChange(overlay, key, value);
+  };
+  addChangeListener(settingsChangeListener);
 }
 
 /**
@@ -384,25 +403,25 @@ function updateConnectionStatus(overlay, state) {
   statusIndicator.className = 'chatover-status-indicator';
 
   switch (state) {
-  case ConnectionState.CONNECTING:
-    statusIndicator.classList.add('chatover-status-connecting');
-    statusIndicator.title = 'Connecting to chat...';
-    break;
-  case ConnectionState.CONNECTED:
-    statusIndicator.classList.add('chatover-status-connected');
-    statusIndicator.title = 'Connected to chat';
-    break;
-  case ConnectionState.ERROR:
-    statusIndicator.classList.add('chatover-status-error');
-    statusIndicator.title = 'Chat connection error';
-    break;
-  case ConnectionState.ENDED:
-    statusIndicator.classList.add('chatover-status-ended');
-    statusIndicator.title = 'Stream ended';
-    break;
-  default:
-    statusIndicator.classList.add('chatover-status-disconnected');
-    statusIndicator.title = 'Not connected';
+    case ConnectionState.CONNECTING:
+      statusIndicator.classList.add('chatover-status-connecting');
+      statusIndicator.title = 'Connecting to chat...';
+      break;
+    case ConnectionState.CONNECTED:
+      statusIndicator.classList.add('chatover-status-connected');
+      statusIndicator.title = 'Connected to chat';
+      break;
+    case ConnectionState.ERROR:
+      statusIndicator.classList.add('chatover-status-error');
+      statusIndicator.title = 'Chat connection error';
+      break;
+    case ConnectionState.ENDED:
+      statusIndicator.classList.add('chatover-status-ended');
+      statusIndicator.title = 'Stream ended';
+      break;
+    default:
+      statusIndicator.classList.add('chatover-status-disconnected');
+      statusIndicator.title = 'Not connected';
   }
 }
 
@@ -716,7 +735,44 @@ function makeResizable(element) {
  * Open settings panel
  */
 function openSettings() {
-  // TODO: Implement settings panel in Phase 3
+  // Get video player to position panel
+  const videoPlayer = findElement(VIDEO_SELECTORS);
+  if (!videoPlayer) {
+    console.error('ChatOver: Cannot open settings - video player not found');
+    return;
+  }
+
+  // Close existing panel if open
+  if (settingsPanel && settingsPanel.isOpen) {
+    settingsPanel.close();
+    return;
+  }
+
+  // Create and open settings panel
+  settingsPanel = new SettingsPanel(videoPlayer);
+  settingsPanel.open(() => {
+    // Callback when panel is closed
+    settingsPanel = null;
+  });
+}
+
+/**
+ * Handle settings changes in real-time
+ * @param {HTMLElement} overlay - The overlay element
+ * @param {string} key - The changed setting key
+ * @param {*} value - The new value
+ */
+function handleSettingsChange(overlay, key, value) {
+  if (!overlay) return;
+
+  // Apply all settings to overlay
+  applySettingsToOverlay(overlay);
+
+  // Handle reset specifically
+  if (key === 'reset') {
+    // On reset, re-apply all settings
+    applySettingsToOverlay(overlay);
+  }
 }
 
 /**
@@ -806,6 +862,18 @@ function cleanup() {
   if (messageRenderer) {
     messageRenderer.destroy();
     messageRenderer = null;
+  }
+
+  // Close settings panel if open
+  if (settingsPanel) {
+    settingsPanel.destroy();
+    settingsPanel = null;
+  }
+
+  // Remove settings change listener
+  if (settingsChangeListener) {
+    removeChangeListener(settingsChangeListener);
+    settingsChangeListener = null;
   }
 
   // Reset MessageSender singleton (clears stale iframe references)

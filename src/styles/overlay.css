@@ -236,14 +236,14 @@
 }
 
 .chatover-message-author {
-  font-size: 13px;
+  font-size: var(--chatover-username-font-size, 13px);
   font-weight: 600;
   color: #aaa;
   text-shadow: none;
 }
 
 .chatover-message-text {
-  font-size: 14px;
+  font-size: var(--chatover-message-font-size, 14px);
   color: #eee;
   word-wrap: break-word;
   text-shadow:
@@ -633,4 +633,342 @@
   /* Ensure overlay stays visible in fullscreen */
   position: absolute !important;
   z-index: 2147483640 !important;
+}
+
+/* ============================================
+   SETTINGS PANEL STYLES
+   ============================================ */
+
+/* Settings Panel Container */
+.chatover-settings-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2147483645;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  /* Allow clicks to pass through to video */
+}
+
+.chatover-settings-panel.chatover-settings-open {
+  opacity: 1;
+}
+
+/* Settings panel box background */
+.chatover-settings-panel::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 320px;
+  max-width: 90%;
+  height: 400px;
+  background: linear-gradient(145deg, rgba(30, 30, 40, 0.98), rgba(20, 20, 30, 0.98));
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  pointer-events: auto;
+  /* Capture clicks on the panel background itself */
+}
+
+/* Wrapper for settings content */
+.chatover-settings-panel {
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+/* Position inner content */
+.chatover-settings-panel .chatover-settings-header,
+.chatover-settings-panel .chatover-settings-content,
+.chatover-settings-panel .chatover-settings-footer {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  max-width: 90%;
+  box-sizing: border-box;
+  pointer-events: auto;
+  /* Re-enable clicks for the actual panel content */
+}
+
+/* Settings Header */
+.chatover-settings-header {
+  top: calc(50% - 180px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chatover-settings-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.3px;
+}
+
+.chatover-settings-close {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #aaa;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.chatover-settings-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+/* Settings Content Area */
+.chatover-settings-content {
+  top: calc(50% - 130px);
+  height: 260px;
+  overflow-y: auto;
+  padding: 16px 20px;
+  /* Hide scrollbar */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.chatover-settings-content::-webkit-scrollbar {
+  display: none;
+}
+
+/* Settings Section */
+.chatover-settings-section {
+  margin-bottom: 20px;
+}
+
+.chatover-settings-section:last-child {
+  margin-bottom: 0;
+}
+
+.chatover-settings-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+/* Settings Group */
+.chatover-settings-group {
+  margin-bottom: 16px;
+}
+
+.chatover-settings-group:last-child {
+  margin-bottom: 0;
+}
+
+.chatover-settings-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #ddd;
+  margin-bottom: 8px;
+}
+
+.chatover-settings-value {
+  font-size: 12px;
+  color: #667eea;
+  font-weight: 600;
+  min-width: 45px;
+  text-align: right;
+}
+
+/* Range Slider */
+.chatover-settings-slider {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.chatover-settings-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.chatover-settings-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.6);
+}
+
+.chatover-settings-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
+}
+
+.chatover-settings-slider::-moz-range-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  height: 6px;
+}
+
+/* Toggle Switch */
+.chatover-settings-toggle-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chatover-settings-toggle-group .chatover-settings-label {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.chatover-settings-toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.chatover-settings-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.chatover-settings-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  transition: background 0.3s ease;
+}
+
+.chatover-settings-toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.chatover-settings-toggle input:checked+.chatover-settings-toggle-slider {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.chatover-settings-toggle input:checked+.chatover-settings-toggle-slider::before {
+  transform: translateX(20px);
+}
+
+/* Settings Footer */
+.chatover-settings-footer {
+  top: calc(50% + 130px);
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: center;
+}
+
+.chatover-settings-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #aaa;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chatover-settings-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.chatover-settings-reset {
+  color: #f87171;
+}
+
+.chatover-settings-reset:hover {
+  background: rgba(248, 113, 113, 0.15);
+  color: #fca5a5;
+}
+
+/* ============================================
+   CSS CUSTOM PROPERTIES FOR DYNAMIC SETTINGS
+   ============================================ */
+
+/* Default values (overridden by JS) */
+.chatover-overlay {
+  --chatover-username-font-size: 13px;
+  --chatover-message-font-size: 14px;
+  --chatover-transparency: 0.5;
+}
+
+/* Apply transparency to message backgrounds */
+/* transparency: 0 = no background, 1 = fully opaque black */
+.chatover-message {
+  background: rgba(0, 0, 0, var(--chatover-transparency, 0.85));
+}
+
+.chatover-message:hover {
+  background: rgba(0, 0, 0, calc(var(--chatover-transparency, 0.85) + 0.1));
+}
+
+/* Text outline toggle class */
+.chatover-overlay.chatover-text-outline .chatover-message-text {
+  text-shadow:
+    -1px -1px 0 rgba(0, 0, 0, 0.8),
+    1px -1px 0 rgba(0, 0, 0, 0.8),
+    -1px 1px 0 rgba(0, 0, 0, 0.8),
+    1px 1px 0 rgba(0, 0, 0, 0.8);
+}
+
+.chatover-overlay:not(.chatover-text-outline) .chatover-message-text {
+  text-shadow: none;
+}
+
+/* Fullscreen overrides for settings panel */
+:fullscreen .chatover-settings-panel,
+:-webkit-full-screen .chatover-settings-panel,
+:-moz-full-screen .chatover-settings-panel {
+  position: absolute !important;
+  z-index: 2147483645 !important;
 }
