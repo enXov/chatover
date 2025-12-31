@@ -959,7 +959,7 @@
 }
 
 .chatover-message:hover {
-  background: color-mix(in srgb, var(--chatover-message-hover-color) calc(var(--chatover-transparency, 0.85) * 100%), transparent);
+  background: var(--chatover-message-hover-color);
 }
 
 /* Text outline toggle class */

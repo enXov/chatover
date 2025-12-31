@@ -164,10 +164,10 @@ export class MessageRenderer {
                  onerror="this.style.display='none'" />
             <div class="chatover-message-content">
                 <div class="chatover-message-header">
-                    ${this._renderBadges(message.badges)}
                     <span class="chatover-message-author ${this._getAuthorClass(message.author)}">
                         ${this._escapeHtml(message.author.name)}
                     </span>
+                    ${this._renderBadges(message.badges)}
                     ${replyToHtml}
                     ${message.paidInfo ? `<span class="chatover-message-amount">${this._escapeHtml(message.paidInfo.amount)}</span>` : ''}
                 </div>
