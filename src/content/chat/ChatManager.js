@@ -282,6 +282,13 @@ export class ChatManager {
         const message = this.parser.parseAction(action);
 
         if (message) {
+            // If we're receiving messages but state is ERROR, we've recovered
+            // Re-emit CONNECTED to re-enable the input field
+            if (this.connectionState === ConnectionState.ERROR) {
+                console.log('ChatOver: Connection recovered, re-enabling input');
+                this._setState(ConnectionState.CONNECTED);
+            }
+
             this._emit('message', message);
         }
     }
