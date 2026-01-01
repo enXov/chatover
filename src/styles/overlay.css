@@ -661,69 +661,89 @@
 /* Settings Panel Container */
 .chatover-settings-panel {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  width: 360px;
+  height: 480px;
+  min-width: 320px;
+  min-height: 400px;
   z-index: 2147483645;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  background: linear-gradient(145deg, rgba(28, 28, 35, 0.98), rgba(18, 18, 24, 0.98));
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
   opacity: 0;
-  transition: opacity 0.2s ease;
-  pointer-events: none;
-  /* Allow clicks to pass through to video */
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform: scale(0.95);
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+  overflow: hidden;
 }
 
 .chatover-settings-panel.chatover-settings-open {
   opacity: 1;
+  transform: scale(1);
 }
 
-/* Settings panel box background */
-.chatover-settings-panel::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 320px;
-  max-width: 90%;
-  height: 400px;
-  background: linear-gradient(145deg, rgba(30, 30, 40, 0.98), rgba(20, 20, 30, 0.98));
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
-  pointer-events: auto;
-  /* Capture clicks on the panel background itself */
+/* Settings Header */
+.chatover-settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: grab;
+  user-select: none;
+  flex-shrink: 0;
 }
 
-/* Wrapper for settings content */
-.chatover-settings-panel {
-  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+.chatover-settings-header:active {
+  cursor: grabbing;
 }
 
-/* Position inner content */
-.chatover-settings-panel .chatover-settings-content,
-.chatover-settings-panel .chatover-settings-footer {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 320px;
-  max-width: 90%;
-  box-sizing: border-box;
-  pointer-events: auto;
-  /* Re-enable clicks for the actual panel content */
+.chatover-settings-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
+.chatover-settings-icon {
+  font-size: 18px;
+}
 
+.chatover-settings-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.3px;
+}
+
+.chatover-settings-close {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #888;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.chatover-settings-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
 
 /* Settings Content Area */
 .chatover-settings-content {
-  top: calc(50% - 180px);
-  height: 260px;
+  flex: 1;
   overflow-y: auto;
-  padding: 16px 20px;
-  /* Hide scrollbar */
+  padding: 12px;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -732,58 +752,116 @@
   display: none;
 }
 
-/* Settings Section */
+/* Collapsible Section */
 .chatover-settings-section {
-  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: border-color 0.2s ease;
+}
+
+.chatover-settings-section:hover {
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .chatover-settings-section:last-child {
   margin-bottom: 0;
 }
 
-.chatover-settings-section-title {
-  font-size: 11px;
-  font-weight: 600;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 12px;
-}
-
-/* Settings Group */
-.chatover-settings-group {
-  margin-bottom: 16px;
-}
-
-.chatover-settings-group:last-child {
-  margin-bottom: 0;
-}
-
-.chatover-settings-label {
+.chatover-settings-section-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.chatover-settings-section-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.chatover-settings-section-icon {
+  font-size: 16px;
+  width: 24px;
+  text-align: center;
+}
+
+.chatover-settings-section-title {
+  flex: 1;
   font-size: 13px;
-  color: #ddd;
-  margin-bottom: 8px;
+  font-weight: 600;
+  color: #eee;
+  letter-spacing: 0.3px;
+}
+
+.chatover-settings-section-arrow {
+  font-size: 12px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.chatover-settings-section-body {
+  padding: 8px 14px 14px;
+  overflow: hidden;
+  max-height: 500px;
+  transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.2s ease;
+  opacity: 1;
+}
+
+/* Collapsed state */
+.chatover-settings-section.collapsed .chatover-settings-section-body {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+}
+
+/* Settings Row - Single line for label + control */
+.chatover-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.chatover-settings-row:last-child {
+  border-bottom: none;
+}
+
+.chatover-settings-row-label {
+  font-size: 12px;
+  color: #bbb;
+  flex-shrink: 0;
+}
+
+.chatover-settings-row-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  justify-content: flex-end;
 }
 
 .chatover-settings-value {
-  font-size: 12px;
+  font-size: 11px;
   color: #667eea;
   font-weight: 600;
-  min-width: 45px;
+  min-width: 40px;
   text-align: right;
 }
 
-/* Range Slider */
+/* Compact Range Slider */
 .chatover-settings-slider {
-  width: 100%;
-  height: 6px;
+  width: 100px;
+  height: 4px;
   -webkit-appearance: none;
   appearance: none;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
   outline: none;
   cursor: pointer;
 }
@@ -791,23 +869,22 @@
 .chatover-settings-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   background: linear-gradient(135deg, #667eea, #764ba2);
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease;
 }
 
 .chatover-settings-slider::-webkit-slider-thumb:hover {
   transform: scale(1.15);
-  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.6);
 }
 
 .chatover-settings-slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   background: linear-gradient(135deg, #667eea, #764ba2);
   border-radius: 50%;
   border: none;
@@ -816,28 +893,17 @@
 }
 
 .chatover-settings-slider::-moz-range-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
-  height: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+  height: 4px;
 }
 
-/* Toggle Switch */
-.chatover-settings-toggle-group {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.chatover-settings-toggle-group .chatover-settings-label {
-  margin-bottom: 0;
-  flex: 1;
-}
-
+/* Compact Toggle Switch */
 .chatover-settings-toggle {
   position: relative;
   display: inline-block;
-  width: 44px;
-  height: 24px;
+  width: 38px;
+  height: 20px;
   flex-shrink: 0;
 }
 
@@ -855,21 +921,21 @@
   right: 0;
   bottom: 0;
   background: rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
+  border-radius: 10px;
   transition: background 0.3s ease;
 }
 
 .chatover-settings-toggle-slider::before {
   content: '';
   position: absolute;
-  width: 18px;
-  height: 18px;
-  left: 3px;
-  bottom: 3px;
+  width: 16px;
+  height: 16px;
+  left: 2px;
+  bottom: 2px;
   background: #fff;
   border-radius: 50%;
   transition: transform 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .chatover-settings-toggle input:checked+.chatover-settings-toggle-slider {
@@ -877,70 +943,199 @@
 }
 
 .chatover-settings-toggle input:checked+.chatover-settings-toggle-slider::before {
-  transform: translateX(20px);
+  transform: translateX(18px);
 }
 
-/* Color Picker */
+/* Compact Color Picker */
 .chatover-settings-color {
-  width: 100%;
-  height: 36px;
+  width: 60px;
+  height: 28px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   background: transparent;
   transition: border-color 0.2s ease;
 }
 
 .chatover-settings-color:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .chatover-settings-color::-webkit-color-swatch-wrapper {
-  padding: 4px;
+  padding: 3px;
 }
 
 .chatover-settings-color::-webkit-color-swatch {
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
 .chatover-settings-color::-moz-color-swatch {
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
+}
+
+/* Username Color Row (compact icon + label + picker) */
+.chatover-settings-color-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.chatover-settings-color-row:last-child {
+  border-bottom: none;
+}
+
+.chatover-settings-color-icon {
+  width: 20px;
+  font-size: 12px;
+  text-align: center;
+}
+
+.chatover-settings-color-label {
+  flex: 1;
+  font-size: 12px;
+  color: #bbb;
+}
+
+.chatover-settings-color-picker {
+  width: 36px;
+  height: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+  transition: border-color 0.2s ease;
+}
+
+.chatover-settings-color-picker:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.chatover-settings-color-picker::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+
+.chatover-settings-color-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 3px;
+}
+
+.chatover-settings-color-picker::-moz-color-swatch {
+  border: none;
+  border-radius: 3px;
 }
 
 /* Settings Footer */
 .chatover-settings-footer {
-  top: calc(50% + 130px);
-  padding: 16px 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .chatover-settings-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: #aaa;
-  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #999;
+  padding: 8px 18px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .chatover-settings-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
 
 .chatover-settings-reset {
   color: #f87171;
+  border-color: rgba(248, 113, 113, 0.2);
 }
 
 .chatover-settings-reset:hover {
   background: rgba(248, 113, 113, 0.15);
   color: #fca5a5;
+  border-color: rgba(248, 113, 113, 0.3);
+}
+
+/* Settings Panel Resize Handle */
+.chatover-settings-resize {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  cursor: nwse-resize;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.chatover-settings-panel:hover .chatover-settings-resize {
+  opacity: 1;
+}
+
+.chatover-settings-resize::before {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+  background: linear-gradient(135deg,
+      transparent 0%,
+      transparent 45%,
+      rgba(255, 255, 255, 0.25) 45%,
+      rgba(255, 255, 255, 0.25) 55%,
+      transparent 55%,
+      transparent 100%),
+    linear-gradient(135deg,
+      transparent 0%,
+      transparent 65%,
+      rgba(255, 255, 255, 0.25) 65%,
+      rgba(255, 255, 255, 0.25) 75%,
+      transparent 75%,
+      transparent 100%),
+    linear-gradient(135deg,
+      transparent 0%,
+      transparent 85%,
+      rgba(255, 255, 255, 0.25) 85%,
+      rgba(255, 255, 255, 0.25) 95%,
+      transparent 95%,
+      transparent 100%);
+}
+
+.chatover-settings-resize:hover::before {
+  background: linear-gradient(135deg,
+      transparent 0%,
+      transparent 45%,
+      rgba(255, 255, 255, 0.4) 45%,
+      rgba(255, 255, 255, 0.4) 55%,
+      transparent 55%,
+      transparent 100%),
+    linear-gradient(135deg,
+      transparent 0%,
+      transparent 65%,
+      rgba(255, 255, 255, 0.4) 65%,
+      rgba(255, 255, 255, 0.4) 75%,
+      transparent 75%,
+      transparent 100%),
+    linear-gradient(135deg,
+      transparent 0%,
+      transparent 85%,
+      rgba(255, 255, 255, 0.4) 85%,
+      rgba(255, 255, 255, 0.4) 95%,
+      transparent 95%,
+      transparent 100%);
 }
 
 /* ============================================
