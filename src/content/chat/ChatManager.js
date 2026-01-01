@@ -168,16 +168,28 @@ export class ChatManager {
             // Don't emit generic error - let the caller handle send-specific errors
             // Check for common error types
             const errorMsg = error.message || error.toString();
+            const errorMsgLower = errorMsg.toLowerCase();
 
             // 401 = Not signed in
             if (errorMsg.includes('401') || errorMsg.includes('Unauthorized')) {
                 return { success: false, error: 'not_signed_in' };
             }
 
-            // DimChatItemAction = subscribers-only mode error
-            if (errorMsg.includes('not allowed') || errorMsg.includes('permission') || errorMsg.includes('subscriber') || errorMsg.includes('DimChatItemAction')) {
-                return { success: false, error: 'not_allowed' };
+            // Check for members-only chat (paid membership required)
+            if (errorMsgLower.includes('member') && !errorMsgLower.includes('subscriber')) {
+                return { success: false, error: 'members_only' };
             }
+
+            // Check for subscribers-only chat (subscription required)
+            if (errorMsgLower.includes('subscriber') || errorMsgLower.includes('subscription')) {
+                return { success: false, error: 'subscribers_only' };
+            }
+
+            // Generic chat restriction (DimChatItemAction or other permission errors)
+            if (errorMsg.includes('not allowed') || errorMsg.includes('permission') || errorMsg.includes('DimChatItemAction')) {
+                return { success: false, error: 'restricted' };
+            }
+
             return { success: false, error: 'send_failed' };
         }
     }
