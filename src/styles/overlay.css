@@ -457,12 +457,26 @@
 
 /* Badge Icons */
 .chatover-badge-owner,
-.chatover-badge-moderator,
-.chatover-badge-verified {
+.chatover-badge-moderator {
   font-size: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Verified Badge - YouTube style checkmark */
+.chatover-badge-verified {
+  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  background: #909090;
+  color: #0f0f0f;
+  border-radius: 2px;
+  font-weight: bold;
+  margin-left: 2px;
 }
 
 /* Input Error State */
