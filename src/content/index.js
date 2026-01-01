@@ -370,6 +370,11 @@ async function connectChat() {
       // Check for specific error codes
       if (error.code === 'NO_LIVE_CHAT') {
         // Stream is offline or doesn't have live chat - don't retry
+        // Remove loading placeholder (spinner and "Connecting to chat..." text)
+        const placeholder = overlay.querySelector('.chatover-placeholder');
+        if (placeholder) {
+          placeholder.remove();
+        }
         messageRenderer.showStatus('Live chat not available', 'error');
         // Update input placeholder
         const input = overlay.querySelector('.chatover-input');
