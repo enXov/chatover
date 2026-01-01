@@ -170,11 +170,33 @@ export class MessageParser {
             item.primary_text?.toString() ||
             'Gifted memberships!';
 
+        // LiveChatSponsorshipsGiftPurchaseAnnouncement has a different structure:
+        // - header.author_name (Text object)
+        // - header.author_photo (array of Thumbnails)
+        // - header.author_badges (array of badges)
+        // We need to construct an author-like object from these
+        const header = item.header;
+        let authorData = null;
+
+        if (header) {
+            // Construct author-like object from header properties
+            authorData = {
+                name: header.author_name,
+                thumbnails: header.author_photo || [],
+                badges: header.author_badges || [],
+                id: item.author_external_channel_id || '',
+                is_owner: false,
+                is_moderator: false,
+                is_member: true, // Gift purchasers are typically members
+                is_verified: false
+            };
+        }
+
         return {
             id: item.id || this._generateId(),
             type: MessageType.GIFT_PURCHASE,
-            author: this._parseAuthor(item.header?.author || item.author),
-            badges: this._parseBadges(item.header?.author || item.author),
+            author: this._parseAuthor(authorData || item.author),
+            badges: this._parseBadges(authorData || item.author),
             message: {
                 text: headerText,
                 runs: []
@@ -229,8 +251,14 @@ export class MessageParser {
             };
         }
 
-        // Get avatar URL (prefer larger size)
-        const avatarUrl = author.thumbnails?.[0]?.url || '';
+        // Get avatar URL - check multiple possible formats
+        // Regular messages: author.thumbnails[0].url
+        // Gift purchase messages: author.thumbnails (which is author_photo) could be Thumbnail[] with .url
+        let avatarUrl = '';
+        if (author.thumbnails && author.thumbnails.length > 0) {
+            const thumb = author.thumbnails[0];
+            avatarUrl = thumb?.url || thumb || '';
+        }
 
         return {
             name: author.name?.toString() || 'Unknown',
