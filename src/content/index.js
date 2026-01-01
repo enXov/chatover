@@ -478,17 +478,9 @@ function setupInputHandler(input) {
             if (messageRenderer) {
               messageRenderer.showStatus('Cannot send: Sign in to YouTube to chat', 'error');
             }
-          } else if (result.error === 'members_only') {
-            if (messageRenderer) {
-              messageRenderer.showStatus('Cannot send: Members-only chat', 'error');
-            }
-          } else if (result.error === 'subscribers_only') {
-            if (messageRenderer) {
-              messageRenderer.showStatus('Cannot send: Subscribers-only chat', 'error');
-            }
           } else if (result.error === 'restricted') {
             if (messageRenderer) {
-              messageRenderer.showStatus('Cannot send: Chat restricted', 'error');
+              messageRenderer.showStatus('Cannot send: Please wait or check chat restrictions', 'error');
             }
           } else if (result.error === 'not_connected') {
             if (messageRenderer) {

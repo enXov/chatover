@@ -175,24 +175,8 @@ export class ChatManager {
                 return { success: false, error: 'not_signed_in' };
             }
 
-            // DimChatItemAction = subscribers-only mode (YouTube returns this specific action)
-            // This is the most common restriction type, check it first
-            if (errorMsg.includes('DimChatItemAction')) {
-                return { success: false, error: 'subscribers_only' };
-            }
-
-            // Check for explicit subscriber-related keywords
-            if (errorMsgLower.includes('subscriber') || errorMsgLower.includes('subscription')) {
-                return { success: false, error: 'subscribers_only' };
-            }
-
-            // Check for members-only chat (paid membership required)
-            if (errorMsgLower.includes('member') && !errorMsgLower.includes('subscriber')) {
-                return { success: false, error: 'members_only' };
-            }
-
             // Generic chat restriction (other permission errors)
-            if (errorMsg.includes('not allowed') || errorMsg.includes('permission')) {
+            if (errorMsg.includes('not allowed') || errorMsg.includes('permission') || errorMsg.includes('DimChatItemAction')) {
                 return { success: false, error: 'restricted' };
             }
 
