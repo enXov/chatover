@@ -27,7 +27,8 @@ const DEFAULT_SETTINGS = {
     avatarSize: 24,            // Avatar size in pixels
     showAvatars: true,         // Show/hide avatars
     // Layout settings
-    messageSpacing: 0          // Gap between messages in pixels (0 = touching)
+    messageSpacing: 0,         // Gap between messages in pixels (0 = touching)
+    messageBorderRadius: 8     // Border radius of message items in pixels
 };
 
 // Debounce timer for saving
@@ -186,6 +187,7 @@ export function applySettingsToOverlay(overlay) {
     overlay.style.setProperty('--chatover-avatar-size', `${settings.avatarSize}px`);
     // Layout settings
     overlay.style.setProperty('--chatover-message-spacing', `${settings.messageSpacing}px`);
+    overlay.style.setProperty('--chatover-message-border-radius', `${settings.messageBorderRadius}px`);
 
     // Apply text outline class
     if (settings.textOutline) {
