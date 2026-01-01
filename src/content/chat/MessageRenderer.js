@@ -210,7 +210,7 @@ export class MessageRenderer {
      */
     _renderMessageContent(message) {
         if (!message.runs || message.runs.length === 0) {
-            return this._escapeHtml(message.text);
+            return this._linkifyText(this._escapeHtml(message.text));
         }
 
         return message.runs.map(run => {
@@ -231,9 +231,30 @@ export class MessageRenderer {
                              src="${this._escapeHtml(run.url)}" 
                              alt="${this._escapeHtml(run.alt)}" />`;
             } else {
-                return this._escapeHtml(run.text);
+                // Text run - escape HTML and convert URLs to clickable links
+                return this._linkifyText(this._escapeHtml(run.text));
             }
         }).join('');
+    }
+
+    /**
+     * Convert URLs in text to clickable anchor tags
+     * @private
+     */
+    _linkifyText(text) {
+        if (!text) return '';
+
+        // URL regex pattern - matches http(s), www, and common domains
+        const urlPattern = /(\b(?:https?:\/\/|www\.)[^\s<]+|(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+(?:com|org|net|io|gg|tv|co|me|xyz|app|dev|ai|be|ly|link|to|cc|fm|yt|gl)\b[^\s<]*)/gi;
+
+        return text.replace(urlPattern, (url) => {
+            // Add protocol if missing
+            let href = url;
+            if (!url.match(/^https?:\/\//i)) {
+                href = 'https://' + url;
+            }
+            return `<a class="chatover-link" href="${href}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+        });
     }
 
     /**

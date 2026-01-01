@@ -266,6 +266,19 @@
   margin: 0 2px;
 }
 
+/* Clickable Links */
+.chatover-link {
+  color: #60a5fa;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.chatover-link:hover {
+  color: #93c5fd;
+  text-decoration: underline;
+}
+
 /* Stickers (Super Stickers) */
 .chatover-sticker {
   max-width: 100px;
