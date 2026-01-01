@@ -21,8 +21,8 @@ export class SettingsPanel {
     this.isOpen = false;
     this.onClose = null;
 
-    // Track collapsed sections
-    this.collapsedSections = new Set();
+    // Track collapsed sections - all collapsed by default
+    this.collapsedSections = new Set(['text', 'colors', 'usernames', 'avatars']);
 
     // Drag state
     this.isDragging = false;
@@ -44,7 +44,6 @@ export class SettingsPanel {
     this.boundResizeMove = this.handleResizeMove.bind(this);
     this.boundResizeUp = this.handleResizeUp.bind(this);
     this.boundKeyDown = this.handleKeyDown.bind(this);
-    this.boundClickOutside = this.handleClickOutside.bind(this);
   }
 
   /**
@@ -65,10 +64,6 @@ export class SettingsPanel {
     document.addEventListener('mouseup', this.boundResizeUp);
     document.addEventListener('keydown', this.boundKeyDown);
 
-    setTimeout(() => {
-      document.addEventListener('click', this.boundClickOutside);
-    }, 100);
-
     requestAnimationFrame(() => {
       this.panel.classList.add('chatover-settings-open');
     });
@@ -87,7 +82,6 @@ export class SettingsPanel {
     document.removeEventListener('mousemove', this.boundResizeMove);
     document.removeEventListener('mouseup', this.boundResizeUp);
     document.removeEventListener('keydown', this.boundKeyDown);
-    document.removeEventListener('click', this.boundClickOutside);
 
     setTimeout(() => {
       if (this.panel && this.panel.parentNode) {
@@ -101,10 +95,6 @@ export class SettingsPanel {
 
   handleKeyDown(e) {
     if (e.key === 'Escape') this.close();
-  }
-
-  handleClickOutside(e) {
-    if (this.panel && !this.panel.contains(e.target)) this.close();
   }
 
   /**
@@ -146,7 +136,6 @@ export class SettingsPanel {
       <!-- Header -->
       <div class="chatover-settings-header">
         <div class="chatover-settings-header-left">
-          <span class="chatover-settings-icon">⚙️</span>
           <span class="chatover-settings-title">Settings</span>
         </div>
         <button class="chatover-settings-close" title="Close">×</button>
@@ -154,7 +143,7 @@ export class SettingsPanel {
       
       <div class="chatover-settings-content">
         <!-- Text Section -->
-        ${this.createSection('text', '📝', 'Text', `
+        ${this.createSection('text', 'Text', `
           ${this.createSlider('usernameFontSize', 'Username Size', settings.usernameFontSize, 10, 20, 1, 'px')}
           ${this.createSlider('messageFontSize', 'Message Size', settings.messageFontSize, 10, 24, 1, 'px')}
           ${this.createSlider('inputFontSize', 'Input Size', settings.inputFontSize, 10, 18, 1, 'px')}
@@ -166,7 +155,7 @@ export class SettingsPanel {
         `)}
         
         <!-- Colors Section -->
-        ${this.createSection('colors', '🎨', 'Colors', `
+        ${this.createSection('colors', 'Colors', `
           ${this.createColor('backgroundColor', 'Background', settings.backgroundColor)}
           ${this.createSlider('transparency', 'Opacity', settings.transparency, 0, 1, 0.05, '%', true)}
           ${this.createColor('messageTextColor', 'Text', settings.messageTextColor)}
@@ -174,16 +163,16 @@ export class SettingsPanel {
         `)}
         
         <!-- Username Colors Section -->
-        ${this.createSection('usernames', '👤', 'Username Colors', `
-          ${this.createColorRow('ownerColor', '👑', 'Owner', settings.ownerColor)}
-          ${this.createColorRow('moderatorColor', '🛡️', 'Moderator', settings.moderatorColor)}
-          ${this.createColorRow('memberColor', '💎', 'Member', settings.memberColor)}
-          ${this.createColorRow('verifiedColor', '✓', 'Verified', settings.verifiedColor)}
-          ${this.createColorRow('regularUserColor', '👤', 'Regular', settings.regularUserColor)}
+        ${this.createSection('usernames', 'Username Colors', `
+          ${this.createColorRow('ownerColor', 'Owner', settings.ownerColor)}
+          ${this.createColorRow('moderatorColor', 'Moderator', settings.moderatorColor)}
+          ${this.createColorRow('memberColor', 'Member', settings.memberColor)}
+          ${this.createColorRow('verifiedColor', 'Verified', settings.verifiedColor)}
+          ${this.createColorRow('regularUserColor', 'Regular', settings.regularUserColor)}
         `)}
         
         <!-- Avatars Section -->
-        ${this.createSection('avatars', '🖼️', 'Avatars', `
+        ${this.createSection('avatars', 'Avatars', `
           ${this.createToggle('showAvatars', 'Show Avatars', settings.showAvatars)}
           ${this.createSlider('avatarSize', 'Size', settings.avatarSize, 16, 32, 2, 'px')}
         `)}
@@ -191,7 +180,7 @@ export class SettingsPanel {
       
       <div class="chatover-settings-footer">
         <button class="chatover-settings-btn chatover-settings-reset">
-          <span>↺</span> Reset All
+          Reset All
         </button>
       </div>
       
@@ -207,12 +196,11 @@ export class SettingsPanel {
   /**
    * Create a collapsible section
    */
-  createSection(id, icon, title, content) {
+  createSection(id, title, content) {
     const isCollapsed = this.collapsedSections.has(id);
     return `
       <div class="chatover-settings-section ${isCollapsed ? 'collapsed' : ''}" data-section="${id}">
         <div class="chatover-settings-section-header">
-          <span class="chatover-settings-section-icon">${icon}</span>
           <span class="chatover-settings-section-title">${title}</span>
           <span class="chatover-settings-section-arrow">${isCollapsed ? '▸' : '▾'}</span>
         </div>
@@ -274,12 +262,11 @@ export class SettingsPanel {
   }
 
   /**
-   * Create a color row with icon (for username colors)
+   * Create a color row (for username colors)
    */
-  createColorRow(key, icon, label, value) {
+  createColorRow(key, label, value) {
     return `
       <div class="chatover-settings-color-row">
-        <span class="chatover-settings-color-icon">${icon}</span>
         <span class="chatover-settings-color-label">${label}</span>
         <input type="color" class="chatover-settings-color-picker" 
                data-setting="${key}" 
@@ -510,7 +497,6 @@ export class SettingsPanel {
     document.removeEventListener('mousemove', this.boundResizeMove);
     document.removeEventListener('mouseup', this.boundResizeUp);
     document.removeEventListener('keydown', this.boundKeyDown);
-    document.removeEventListener('click', this.boundClickOutside);
 
     if (this.panel && this.panel.parentNode) this.panel.remove();
     this.panel = null;
