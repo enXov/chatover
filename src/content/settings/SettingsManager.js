@@ -25,7 +25,9 @@ const DEFAULT_SETTINGS = {
     regularUserColor: '#aaaaaa', // Regular user username color (gray)
     // Avatar settings
     avatarSize: 24,            // Avatar size in pixels
-    showAvatars: true          // Show/hide avatars
+    showAvatars: true,         // Show/hide avatars
+    // Layout settings
+    messageSpacing: 0          // Gap between messages in pixels (0 = touching)
 };
 
 // Debounce timer for saving
@@ -182,6 +184,8 @@ export function applySettingsToOverlay(overlay) {
     overlay.style.setProperty('--chatover-regular-user-color', settings.regularUserColor);
     // Avatar settings
     overlay.style.setProperty('--chatover-avatar-size', `${settings.avatarSize}px`);
+    // Layout settings
+    overlay.style.setProperty('--chatover-message-spacing', `${settings.messageSpacing}px`);
 
     // Apply text outline class
     if (settings.textOutline) {

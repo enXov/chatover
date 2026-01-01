@@ -158,6 +158,7 @@ export class SettingsPanel {
           ${this.createSlider('usernameFontSize', 'Username Size', settings.usernameFontSize, 10, 20, 1, 'px')}
           ${this.createSlider('messageFontSize', 'Message Size', settings.messageFontSize, 10, 24, 1, 'px')}
           ${this.createSlider('inputFontSize', 'Input Size', settings.inputFontSize, 10, 18, 1, 'px')}
+          ${this.createSlider('messageSpacing', 'Message Spacing', settings.messageSpacing, 0, 16, 1, 'px')}
           ${this.createToggle('textOutline', 'Text Shadow', settings.textOutline)}
           ${this.createSlider('outlineThickness', 'Shadow Thickness', settings.outlineThickness, 0, 5, 0.5, 'px')}
           ${this.createColor('outlineColor', 'Shadow Color', settings.outlineColor)}
