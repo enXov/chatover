@@ -38,12 +38,16 @@ export class SettingsPanel {
     this.resizeStartWidth = 0;
     this.resizeStartHeight = 0;
 
+    // ResizeObserver for constraining position on mode switch
+    this.resizeObserver = null;
+
     // Bound handlers for cleanup
     this.boundDragMove = this.handleDragMove.bind(this);
     this.boundDragUp = this.handleDragUp.bind(this);
     this.boundResizeMove = this.handleResizeMove.bind(this);
     this.boundResizeUp = this.handleResizeUp.bind(this);
     this.boundKeyDown = this.handleKeyDown.bind(this);
+    this.boundConstrainPosition = this.constrainPanelToParent.bind(this);
   }
 
   /**
@@ -64,6 +68,19 @@ export class SettingsPanel {
     document.addEventListener('mouseup', this.boundResizeUp);
     document.addEventListener('keydown', this.boundKeyDown);
 
+    // Observe video player resize to constrain panel position (theater mode, window resize, etc.)
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+    this.resizeObserver = new ResizeObserver(() => {
+      this.constrainPanelToParent();
+    });
+    this.resizeObserver.observe(this.videoPlayer);
+
+    // Listen for fullscreen changes
+    document.addEventListener('fullscreenchange', this.boundConstrainPosition);
+    document.addEventListener('webkitfullscreenchange', this.boundConstrainPosition);
+
     requestAnimationFrame(() => {
       this.panel.classList.add('chatover-settings-open');
     });
@@ -82,6 +99,14 @@ export class SettingsPanel {
     document.removeEventListener('mousemove', this.boundResizeMove);
     document.removeEventListener('mouseup', this.boundResizeUp);
     document.removeEventListener('keydown', this.boundKeyDown);
+    document.removeEventListener('fullscreenchange', this.boundConstrainPosition);
+    document.removeEventListener('webkitfullscreenchange', this.boundConstrainPosition);
+
+    // Disconnect resize observer
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
 
     setTimeout(() => {
       if (this.panel && this.panel.parentNode) {
@@ -319,17 +344,26 @@ export class SettingsPanel {
       this.close();
     });
 
-    // Header drag
-    const header = panel.querySelector('.chatover-settings-header');
-    header.addEventListener('mousedown', (e) => {
+    // Drag from anywhere on panel (excluding interactive elements)
+    panel.addEventListener('mousedown', (e) => {
+      // Don't drag if clicking on interactive elements
       if (e.target.closest('.chatover-settings-close')) return;
+      if (e.target.closest('.chatover-settings-resize')) return;
+      if (e.target.closest('.chatover-settings-slider')) return;
+      if (e.target.closest('.chatover-settings-toggle')) return;
+      if (e.target.closest('.chatover-settings-color')) return;
+      if (e.target.closest('.chatover-settings-color-picker')) return;
+      if (e.target.closest('.chatover-settings-section-header')) return;
+      if (e.target.closest('.chatover-settings-reset')) return;
+      if (e.target.closest('input')) return;
+      if (e.target.closest('button')) return;
 
       this.isDragging = true;
       this.dragStartX = e.clientX;
       this.dragStartY = e.clientY;
       this.dragInitialX = panel.offsetLeft;
       this.dragInitialY = panel.offsetTop;
-      header.style.cursor = 'grabbing';
+      panel.style.cursor = 'grabbing';
       e.preventDefault();
     });
 
@@ -430,8 +464,7 @@ export class SettingsPanel {
   handleDragUp() {
     if (this.isDragging && this.panel) {
       this.isDragging = false;
-      const header = this.panel.querySelector('.chatover-settings-header');
-      if (header) header.style.cursor = 'grab';
+      this.panel.style.cursor = 'default';
       this.savePanelPosition(this.panel.offsetLeft, this.panel.offsetTop);
     }
   }
@@ -452,6 +485,40 @@ export class SettingsPanel {
     if (this.isResizing && this.panel) {
       this.isResizing = false;
       this.savePanelSize(this.panel.offsetWidth, this.panel.offsetHeight);
+    }
+  }
+
+  /**
+   * Constrain panel position to stay within parent bounds
+   * Called on fullscreen changes, theater mode switches, and any container resize
+   */
+  constrainPanelToParent() {
+    if (!this.panel || !this.videoPlayer) return;
+
+    const parentWidth = this.videoPlayer.offsetWidth;
+    const parentHeight = this.videoPlayer.offsetHeight;
+    const panelWidth = this.panel.offsetWidth;
+    const panelHeight = this.panel.offsetHeight;
+
+    // Calculate maximum positions
+    const maxX = Math.max(0, parentWidth - panelWidth);
+    const maxY = Math.max(0, parentHeight - panelHeight);
+
+    // Get current position
+    const currentX = this.panel.offsetLeft;
+    const currentY = this.panel.offsetTop;
+
+    // Constrain to bounds
+    const newX = Math.max(0, Math.min(currentX, maxX));
+    const newY = Math.max(0, Math.min(currentY, maxY));
+
+    // Only update if position changed
+    if (newX !== currentX || newY !== currentY) {
+      this.panel.style.left = `${newX}px`;
+      this.panel.style.top = `${newY}px`;
+
+      // Update saved position
+      this.savePanelPosition(newX, newY);
     }
   }
 
@@ -497,6 +564,14 @@ export class SettingsPanel {
     document.removeEventListener('mousemove', this.boundResizeMove);
     document.removeEventListener('mouseup', this.boundResizeUp);
     document.removeEventListener('keydown', this.boundKeyDown);
+    document.removeEventListener('fullscreenchange', this.boundConstrainPosition);
+    document.removeEventListener('webkitfullscreenchange', this.boundConstrainPosition);
+
+    // Disconnect resize observer
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
 
     if (this.panel && this.panel.parentNode) this.panel.remove();
     this.panel = null;
