@@ -175,18 +175,18 @@ export class ChatManager {
                 return { success: false, error: 'not_signed_in' };
             }
 
+            // Check for explicit subscriber-related keywords
+            if (errorMsgLower.includes('subscriber') || errorMsgLower.includes('subscription')) {
+                return { success: false, error: 'subscribers_only' };
+            }
+
             // Check for members-only chat (paid membership required)
             if (errorMsgLower.includes('member') && !errorMsgLower.includes('subscriber')) {
                 return { success: false, error: 'members_only' };
             }
 
-            // Check for subscribers-only chat (subscription required)
-            if (errorMsgLower.includes('subscriber') || errorMsgLower.includes('subscription')) {
-                return { success: false, error: 'subscribers_only' };
-            }
-
-            // Generic chat restriction (DimChatItemAction or other permission errors)
-            if (errorMsg.includes('not allowed') || errorMsg.includes('permission') || errorMsg.includes('DimChatItemAction')) {
+            // Generic chat restriction (other permission errors)
+            if (errorMsg.includes('not allowed') || errorMsg.includes('permission')) {
                 return { success: false, error: 'restricted' };
             }
 
