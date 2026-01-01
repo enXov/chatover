@@ -367,7 +367,24 @@ async function connectChat() {
   chatManager.on('error', (error) => {
     console.error('ChatOver: Chat error:', error);
     if (messageRenderer) {
-      messageRenderer.showStatus('Chat connection error. Retrying...', 'error');
+      // Check for specific error codes
+      if (error.code === 'NO_LIVE_CHAT') {
+        // Stream is offline or doesn't have live chat - don't retry
+        messageRenderer.showStatus('Live chat not available', 'error');
+        // Update input placeholder
+        const input = overlay.querySelector('.chatover-input');
+        if (input) {
+          input.placeholder = 'Live chat not available';
+        }
+        // Update status indicator
+        const statusIndicator = overlay.querySelector('.chatover-status-indicator');
+        if (statusIndicator) {
+          statusIndicator.title = 'Live chat not available';
+        }
+      } else {
+        // Other connection errors - show retry message
+        messageRenderer.showStatus('Chat connection error. Retrying...', 'error');
+      }
     }
   });
 

@@ -91,7 +91,9 @@ export class ChatManager {
 
             // Check if this is a live stream with chat
             if (!info.livechat) {
-                throw new Error('This video does not have live chat available');
+                const error = new Error('This video does not have live chat available');
+                error.code = 'NO_LIVE_CHAT';
+                throw error;
             }
 
             // Get the live chat instance
