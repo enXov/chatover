@@ -638,6 +638,16 @@ function makeDraggable(element) {
     if (e.target.closest('.chatover-controls')) return;
     if (e.target.closest('.chatover-resize')) return;
     if (e.target.closest('.chatover-input')) return;
+    // Don't drag if clicking on selectable text (check if selection is enabled via class)
+    const overlay = e.target.closest('.chatover-overlay');
+    if (overlay) {
+      // Message text selection
+      if (overlay.classList.contains('chatover-selectable-messages') &&
+        e.target.closest('.chatover-message-text-inner')) return;
+      // Username selection
+      if (overlay.classList.contains('chatover-selectable-usernames') &&
+        e.target.closest('.chatover-message-author-inner')) return;
+    }
 
     isDragging = true;
     startX = e.clientX;

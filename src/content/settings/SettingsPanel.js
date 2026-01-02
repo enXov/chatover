@@ -22,7 +22,7 @@ export class SettingsPanel {
     this.onClose = null;
 
     // Track collapsed sections - all collapsed by default
-    this.collapsedSections = new Set(['text', 'colors', 'usernames', 'avatars']);
+    this.collapsedSections = new Set(['text', 'colors', 'usernames', 'avatars', 'interaction']);
 
     // Drag state
     this.isDragging = false;
@@ -200,6 +200,12 @@ export class SettingsPanel {
         ${this.createSection('avatars', 'Avatars', `
           ${this.createToggle('showAvatars', 'Show Avatars', settings.showAvatars)}
           ${this.createSlider('avatarSize', 'Size', settings.avatarSize, 16, 32, 2, 'px')}
+        `)}
+        
+        <!-- Interaction Section -->
+        ${this.createSection('interaction', 'Interaction', `
+          ${this.createToggle('selectableMessages', 'Selectable Messages', settings.selectableMessages)}
+          ${this.createToggle('selectableUsernames', 'Selectable Usernames', settings.selectableUsernames)}
         `)}
       </div>
       

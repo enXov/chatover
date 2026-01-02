@@ -145,7 +145,7 @@ export class MessageRenderer {
         const hasMessageContent = message.message &&
             (message.message.text || (message.message.runs && message.message.runs.length > 0));
         const messageTextHtml = hasMessageContent
-            ? `<div class="chatover-message-text">${this._renderMessageContent(message.message)}</div>`
+            ? `<div class="chatover-message-text"><span class="chatover-message-text-inner">${this._renderMessageContent(message.message)}</span></div>`
             : '';
 
         // Build reply target HTML if present
@@ -165,7 +165,7 @@ export class MessageRenderer {
             <div class="chatover-message-content">
                 <div class="chatover-message-header">
                     <span class="chatover-message-author ${this._getAuthorClass(message.author)}">
-                        ${this._escapeHtml(message.author.name)}
+                        <span class="chatover-message-author-inner">${this._escapeHtml(message.author.name)}</span>
                     </span>
                     ${this._renderBadges(message.badges)}
                     ${replyToHtml}

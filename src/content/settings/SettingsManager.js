@@ -28,7 +28,10 @@ const DEFAULT_SETTINGS = {
     showAvatars: true,         // Show/hide avatars
     // Layout settings
     messageSpacing: 0,         // Gap between messages in pixels (0 = touching)
-    messageBorderRadius: 8     // Border radius of message items in pixels
+    messageBorderRadius: 8,    // Border radius of message items in pixels
+    // Text selection settings
+    selectableMessages: true,  // Allow selecting message text
+    selectableUsernames: true  // Allow selecting username text
 };
 
 // Debounce timer for saving
@@ -201,6 +204,19 @@ export function applySettingsToOverlay(overlay) {
         overlay.classList.add('chatover-hide-avatars');
     } else {
         overlay.classList.remove('chatover-hide-avatars');
+    }
+
+    // Apply text selection classes
+    if (settings.selectableMessages) {
+        overlay.classList.add('chatover-selectable-messages');
+    } else {
+        overlay.classList.remove('chatover-selectable-messages');
+    }
+
+    if (settings.selectableUsernames) {
+        overlay.classList.add('chatover-selectable-usernames');
+    } else {
+        overlay.classList.remove('chatover-selectable-usernames');
     }
 }
 

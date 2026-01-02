@@ -258,6 +258,27 @@
     1px 1px 0 rgba(0, 0, 0, 0.8);
 }
 
+/* Inner span for text selection - inline so it only covers actual text width */
+.chatover-message-text-inner {
+  display: inline;
+}
+
+/* Username inner span for text selection */
+.chatover-message-author-inner {
+  display: inline;
+}
+
+/* Enable text selection when overlay has the selectable class */
+.chatover-overlay.chatover-selectable-messages .chatover-message-text-inner {
+  user-select: text;
+  cursor: text;
+}
+
+.chatover-overlay.chatover-selectable-usernames .chatover-message-author-inner {
+  user-select: text;
+  cursor: text;
+}
+
 /* Emotes */
 .chatover-emote {
   width: 24px;
