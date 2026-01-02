@@ -34,7 +34,13 @@ const DEFAULT_SETTINGS = {
     selectableMessages: true,  // Allow selecting message text
     selectableUsernames: true, // Allow selecting username text
     // Message direction setting
-    messageDirection: 'bottom' // 'bottom' = newest at bottom (default), 'top' = newest at top
+    messageDirection: 'bottom', // 'bottom' = newest at bottom (default), 'top' = newest at top
+    // Input area settings
+    inputBackgroundColor: '#000000', // Input background color
+    inputBackgroundOpacity: 0.5,     // Input background opacity (0-1)
+    inputTextColor: '#ffffff',       // Input text color
+    inputPlaceholderColor: '#999999', // Input placeholder color
+    inputAlwaysVisible: false         // Always show input (vs hover-only)
 };
 
 // Debounce timer for saving
@@ -234,6 +240,25 @@ export function applySettingsToOverlay(overlay) {
         overlay.classList.add('chatover-messages-top');
     } else {
         overlay.classList.remove('chatover-messages-top');
+    }
+
+    // Input area styling - parse hex color to RGB for rgba support
+    const inputBgHex = settings.inputBackgroundColor;
+    const inputBgR = parseInt(inputBgHex.slice(1, 3), 16);
+    const inputBgG = parseInt(inputBgHex.slice(3, 5), 16);
+    const inputBgB = parseInt(inputBgHex.slice(5, 7), 16);
+    overlay.style.setProperty('--chatover-input-bg-r', inputBgR);
+    overlay.style.setProperty('--chatover-input-bg-g', inputBgG);
+    overlay.style.setProperty('--chatover-input-bg-b', inputBgB);
+    overlay.style.setProperty('--chatover-input-bg-opacity', settings.inputBackgroundOpacity);
+    overlay.style.setProperty('--chatover-input-text-color', settings.inputTextColor);
+    overlay.style.setProperty('--chatover-input-placeholder-color', settings.inputPlaceholderColor);
+
+    // Apply input always visible class
+    if (settings.inputAlwaysVisible) {
+        overlay.classList.add('chatover-input-always-visible');
+    } else {
+        overlay.classList.remove('chatover-input-always-visible');
     }
 }
 

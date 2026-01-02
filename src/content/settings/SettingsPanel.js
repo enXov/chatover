@@ -22,7 +22,7 @@ export class SettingsPanel {
     this.onClose = null;
 
     // Track collapsed sections - all collapsed by default
-    this.collapsedSections = new Set(['text', 'colors', 'usernames', 'avatars', 'interaction']);
+    this.collapsedSections = new Set(['text', 'colors', 'usernames', 'avatars', 'interaction', 'input']);
 
     // Drag state
     this.isDragging = false;
@@ -211,6 +211,15 @@ export class SettingsPanel {
     ])}
           ${this.createToggle('selectableMessages', 'Selectable Messages', settings.selectableMessages)}
           ${this.createToggle('selectableUsernames', 'Selectable Usernames', settings.selectableUsernames)}
+        `)}
+        
+        <!-- Input Section -->
+        ${this.createSection('input', 'Input', `
+          ${this.createToggle('inputAlwaysVisible', 'Always Visible', settings.inputAlwaysVisible)}
+          ${this.createColor('inputBackgroundColor', 'Background', settings.inputBackgroundColor)}
+          ${this.createSlider('inputBackgroundOpacity', 'Opacity', settings.inputBackgroundOpacity, 0, 1, 0.05, '%', true)}
+          ${this.createColor('inputTextColor', 'Text Color', settings.inputTextColor)}
+          ${this.createColor('inputPlaceholderColor', 'Placeholder', settings.inputPlaceholderColor)}
         `)}
       </div>
       
@@ -458,7 +467,7 @@ export class SettingsPanel {
 
         const valueDisplay = panel.querySelector(`.chatover-settings-value[data-for="${setting}"]`);
         if (valueDisplay) {
-          if (setting === 'transparency' || setting === 'messageHoverOpacity') {
+          if (setting === 'transparency' || setting === 'messageHoverOpacity' || setting === 'inputBackgroundOpacity') {
             valueDisplay.textContent = `${Math.round(value * 100)}%`;
           } else {
             valueDisplay.textContent = `${value}px`;
@@ -582,7 +591,7 @@ export class SettingsPanel {
       slider.value = settings[setting];
       const valueDisplay = panel.querySelector(`.chatover-settings-value[data-for="${setting}"]`);
       if (valueDisplay) {
-        if (setting === 'transparency' || setting === 'messageHoverOpacity') {
+        if (setting === 'transparency' || setting === 'messageHoverOpacity' || setting === 'inputBackgroundOpacity') {
           valueDisplay.textContent = `${Math.round(settings[setting] * 100)}%`;
         } else {
           valueDisplay.textContent = `${settings[setting]}px`;

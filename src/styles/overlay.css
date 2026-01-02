@@ -550,12 +550,17 @@
   border-top: none;
   flex-shrink: 0;
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, background 0.2s ease;
   position: relative;
 }
 
 .chatover-overlay:hover .chatover-input-container,
 .chatover-input-container:focus-within {
+  opacity: 1;
+}
+
+/* Always visible input - override hover behavior */
+.chatover-input-always-visible .chatover-input-container {
   opacity: 1;
 }
 
@@ -590,18 +595,21 @@
 
 .chatover-input {
   flex: 1;
-  background: transparent;
+  background: rgba(var(--chatover-input-bg-r, 0),
+      var(--chatover-input-bg-g, 0),
+      var(--chatover-input-bg-b, 0),
+      var(--chatover-input-bg-opacity, 0.5));
   border: none;
-  border-radius: 0;
-  padding: 8px 4px;
-  color: #fff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--chatover-input-text-color, #ffffff);
   font-size: var(--chatover-input-font-size, 13px);
   outline: none;
   transition: all 0.2s ease;
 }
 
 .chatover-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--chatover-input-placeholder-color, #999999);
 }
 
 .chatover-input:focus {
