@@ -13,17 +13,53 @@
   Watch your favorite streams with chat visible in any viewing mode!
 </p>
 
-## Download
+## What This Extension Solves
 
-<p align="center">
-  <a href="#">
-    <img src="https://img.shields.io/badge/Chrome-Download-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Chrome Web Store" />
-  </a>
-  &nbsp;&nbsp;
-  <a href="#">
-    <img src="https://img.shields.io/badge/Firefox-Download-FF7139?style=for-the-badge&logo=firefox&logoColor=white" alt="Firefox Add-ons" />
-  </a>
-</p>
+YouTube's live streaming experience has several frustrating limitations that ChatOver addresses:
+
+### 🎯 **No Customization for Viewers**
+Many popular streamers embed chat overlays directly into their stream video (using OBS or similar tools), but this means **you** can't customize it. You're stuck with:
+- The streamer's chosen position and size
+- Their selected transparency and font settings
+- No ability to move it out of your way
+- No control over which messages you want to see
+
+**ChatOver gives YOU control** - position, resize, and customize the chat exactly how you want it, regardless of what the streamer does.
+
+### 💥 **YouTube Chat Performance Issues**
+YouTube's native chat has serious performance problems, especially during long live streams:
+- **Freezing & Lag**: In streams with active chat, the chat tab becomes increasingly sluggish over time
+- **Browser Crashes**: Very long streams with thousands of messages can cause the entire tab to crash
+- **Memory Leaks**: The native chat implementation doesn't efficiently clean up old messages, consuming more RAM as the stream continues
+- **Stuttering**: Scrolling through chat history often results in janky, stuttering performance
+
+**ChatOver is lightweight and efficient** - it only keeps a configurable number of recent messages in memory, preventing performance degradation even during marathon streams.
+
+### 📺 **Terrible Fullscreen Experience**
+YouTube's fullscreen mode with chat is not actually fullscreen:
+- The video stays on the left side
+- A huge empty/chat area takes up the right side
+- You can't use the full screen for video
+- It's a "split-screen" mode, not true fullscreen
+
+**ChatOver lets you have true fullscreen** - the video takes up your entire screen, and chat floats transparently on top wherever you want it.
+
+### 👁️ **Can't Watch Video AND See Chat**
+With YouTube's default layout, you have to choose:
+- Fullscreen mode = no chat visible
+- Chat visible = smaller video in theater or normal mode
+- No way to have both at the same time
+
+**ChatOver solves this** - you get both! Watch in fullscreen (or any mode) with chat visible as a transparent overlay.
+
+### 🎭 **Limited Viewing Options**
+YouTube's chat is stuck in a fixed sidebar position. You can't:
+- Move it to the top, bottom, or corners of the video
+- Resize it to be larger or smaller
+- Make it semi-transparent to see video content behind it
+- Minimize it when you want to focus
+
+**ChatOver is fully draggable, resizable, and customizable** - make it work for YOUR viewing style.
 
 ## Features
 
