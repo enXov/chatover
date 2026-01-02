@@ -104,7 +104,20 @@ export class MessageParser {
      * @private
      */
     _parseStickerMessage(item) {
-        const stickerUrl = item.sticker?.thumbnails?.[0]?.url || '';
+        // youtubei.js LiveChatPaidSticker has sticker as Thumbnail[] directly, not { thumbnails: [] }
+        // Also try the nested structure as fallback for compatibility
+        const stickerUrl = item.sticker?.[0]?.url ||
+            item.sticker?.thumbnails?.[0]?.url ||
+            '';
+
+        // Get sticker accessibility label for alt text (e.g., "YOU ARE AMAZING")
+        const stickerAlt = item.sticker_accessibility_label || 'Super Sticker';
+
+        // Get background color - convert to hex if it's a number
+        let bgColor = '#1565C0'; // Default blue
+        if (typeof item.background_color === 'number') {
+            bgColor = '#' + (item.background_color >>> 0).toString(16).padStart(6, '0');
+        }
 
         return {
             id: item.id || this._generateId(),
@@ -116,13 +129,13 @@ export class MessageParser {
                 runs: [{
                     type: 'sticker',
                     url: stickerUrl,
-                    alt: 'Super Sticker'
+                    alt: stickerAlt
                 }]
             },
-            timestamp: new Date(),
+            timestamp: item.timestamp ? new Date(item.timestamp) : new Date(),
             paidInfo: {
                 amount: item.purchase_amount?.toString() || '',
-                color: '#1565C0'
+                color: bgColor
             }
         };
     }
