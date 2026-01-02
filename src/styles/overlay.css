@@ -203,7 +203,7 @@
 }
 
 .chatover-message:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--chatover-message-hover-rgba, rgba(26, 26, 26, 0.3));
 }
 
 .chatover-message-avatar {
@@ -1202,7 +1202,7 @@
 }
 
 .chatover-message:hover {
-  background: var(--chatover-message-hover-color);
+  background: var(--chatover-message-hover-rgba, rgba(26, 26, 26, 0.3));
 }
 
 /* Text outline toggle class */

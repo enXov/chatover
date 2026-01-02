@@ -15,6 +15,7 @@ const DEFAULT_SETTINGS = {
     backgroundColor: '#000000', // Background color (hex)
     messageTextColor: '#eeeeee', // Message text color (hex)
     messageHoverColor: '#1a1a1a', // Message hover background color (hex)
+    messageHoverOpacity: 0.3,     // Message hover background opacity (0-1)
     outlineThickness: 1,       // Text outline thickness in pixels
     outlineColor: '#000000',   // Text outline color (hex)
     // Username colors by role
@@ -178,6 +179,13 @@ export function applySettingsToOverlay(overlay) {
     overlay.style.setProperty('--chatover-background-color', settings.backgroundColor);
     overlay.style.setProperty('--chatover-message-text-color', settings.messageTextColor);
     overlay.style.setProperty('--chatover-message-hover-color', settings.messageHoverColor);
+    // Convert hex color + opacity to rgba for proper hover background
+    const hoverHex = settings.messageHoverColor;
+    const hoverOpacity = settings.messageHoverOpacity;
+    const r = parseInt(hoverHex.slice(1, 3), 16);
+    const g = parseInt(hoverHex.slice(3, 5), 16);
+    const b = parseInt(hoverHex.slice(5, 7), 16);
+    overlay.style.setProperty('--chatover-message-hover-rgba', `rgba(${r}, ${g}, ${b}, ${hoverOpacity})`);
     overlay.style.setProperty('--chatover-outline-thickness', `${settings.outlineThickness}px`);
     overlay.style.setProperty('--chatover-outline-color', settings.outlineColor);
     // Username colors by role

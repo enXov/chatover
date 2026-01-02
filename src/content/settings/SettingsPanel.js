@@ -185,6 +185,7 @@ export class SettingsPanel {
           ${this.createSlider('transparency', 'Opacity', settings.transparency, 0, 1, 0.05, '%', true)}
           ${this.createColor('messageTextColor', 'Text', settings.messageTextColor)}
           ${this.createColor('messageHoverColor', 'Hover', settings.messageHoverColor)}
+          ${this.createSlider('messageHoverOpacity', 'Hover Opacity', settings.messageHoverOpacity, 0, 1, 0.05, '%', true)}
         `)}
         
         <!-- Username Colors Section -->
@@ -373,19 +374,32 @@ export class SettingsPanel {
       e.preventDefault();
     });
 
-    // Section collapse toggle
+    // Section collapse toggle - Accordion behavior (only one section open at a time)
     const sectionHeaders = panel.querySelectorAll('.chatover-settings-section-header');
     sectionHeaders.forEach(header => {
       header.addEventListener('click', () => {
         const section = header.closest('.chatover-settings-section');
         const sectionId = section.dataset.section;
         const arrow = header.querySelector('.chatover-settings-section-arrow');
+        const allSections = panel.querySelectorAll('.chatover-settings-section');
 
         if (section.classList.contains('collapsed')) {
+          // Opening a section - close all others first (accordion behavior)
+          allSections.forEach(otherSection => {
+            const otherId = otherSection.dataset.section;
+            const otherArrow = otherSection.querySelector('.chatover-settings-section-arrow');
+            if (otherId !== sectionId) {
+              otherSection.classList.add('collapsed');
+              if (otherArrow) otherArrow.textContent = '▸';
+              this.collapsedSections.add(otherId);
+            }
+          });
+          // Now open the clicked section
           section.classList.remove('collapsed');
           arrow.textContent = '▾';
           this.collapsedSections.delete(sectionId);
         } else {
+          // Closing the section
           section.classList.add('collapsed');
           arrow.textContent = '▸';
           this.collapsedSections.add(sectionId);
@@ -422,7 +436,7 @@ export class SettingsPanel {
 
         const valueDisplay = panel.querySelector(`.chatover-settings-value[data-for="${setting}"]`);
         if (valueDisplay) {
-          if (setting === 'transparency') {
+          if (setting === 'transparency' || setting === 'messageHoverOpacity') {
             valueDisplay.textContent = `${Math.round(value * 100)}%`;
           } else {
             valueDisplay.textContent = `${value}px`;
@@ -537,7 +551,7 @@ export class SettingsPanel {
       slider.value = settings[setting];
       const valueDisplay = panel.querySelector(`.chatover-settings-value[data-for="${setting}"]`);
       if (valueDisplay) {
-        if (setting === 'transparency') {
+        if (setting === 'transparency' || setting === 'messageHoverOpacity') {
           valueDisplay.textContent = `${Math.round(settings[setting] * 100)}%`;
         } else {
           valueDisplay.textContent = `${settings[setting]}px`;
