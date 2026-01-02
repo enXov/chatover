@@ -205,6 +205,10 @@ export class SettingsPanel {
         
         <!-- Interaction Section -->
         ${this.createSection('interaction', 'Interaction', `
+          ${this.createSelect('messageDirection', 'Message Order', settings.messageDirection, [
+      { value: 'bottom', label: 'Newest at Bottom' },
+      { value: 'top', label: 'Newest at Top' }
+    ])}
           ${this.createToggle('selectableMessages', 'Selectable Messages', settings.selectableMessages)}
           ${this.createToggle('selectableUsernames', 'Selectable Usernames', settings.selectableUsernames)}
         `)}
@@ -307,6 +311,22 @@ export class SettingsPanel {
     `;
   }
 
+  /**
+   * Create a select dropdown control
+   */
+  createSelect(key, label, value, options) {
+    return `
+      <div class="chatover-settings-row">
+        <span class="chatover-settings-row-label">${label}</span>
+        <div class="chatover-settings-row-control">
+          <select class="chatover-settings-select" data-setting="${key}">
+            ${options.map(opt => `<option value="${opt.value}" ${opt.value === value ? 'selected' : ''}>${opt.label}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+    `;
+  }
+
   async loadPanelState() {
     try {
       const result = await browser.storage.sync.get(['settingsPanelPosition', 'settingsPanelSize']);
@@ -362,8 +382,10 @@ export class SettingsPanel {
       if (e.target.closest('.chatover-settings-color-picker')) return;
       if (e.target.closest('.chatover-settings-section-header')) return;
       if (e.target.closest('.chatover-settings-reset')) return;
+      if (e.target.closest('.chatover-settings-select')) return;
       if (e.target.closest('input')) return;
       if (e.target.closest('button')) return;
+      if (e.target.closest('select')) return;
 
       this.isDragging = true;
       this.dragStartX = e.clientX;
@@ -460,6 +482,15 @@ export class SettingsPanel {
     const colorInputs = panel.querySelectorAll('.chatover-settings-color, .chatover-settings-color-picker');
     colorInputs.forEach(colorInput => {
       colorInput.addEventListener('input', (e) => {
+        const setting = e.target.dataset.setting;
+        setSetting(setting, e.target.value);
+      });
+    });
+
+    // Select inputs
+    const selects = panel.querySelectorAll('.chatover-settings-select');
+    selects.forEach(select => {
+      select.addEventListener('change', (e) => {
         const setting = e.target.dataset.setting;
         setSetting(setting, e.target.value);
       });
@@ -567,6 +598,11 @@ export class SettingsPanel {
     // Update color inputs
     panel.querySelectorAll('.chatover-settings-color, .chatover-settings-color-picker').forEach(colorInput => {
       colorInput.value = settings[colorInput.dataset.setting];
+    });
+
+    // Update select inputs
+    panel.querySelectorAll('.chatover-settings-select').forEach(select => {
+      select.value = settings[select.dataset.setting];
     });
   }
 

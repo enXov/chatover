@@ -32,7 +32,9 @@ const DEFAULT_SETTINGS = {
     messageBorderRadius: 8,    // Border radius of message items in pixels
     // Text selection settings
     selectableMessages: true,  // Allow selecting message text
-    selectableUsernames: true  // Allow selecting username text
+    selectableUsernames: true, // Allow selecting username text
+    // Message direction setting
+    messageDirection: 'bottom' // 'bottom' = newest at bottom (default), 'top' = newest at top
 };
 
 // Debounce timer for saving
@@ -225,6 +227,13 @@ export function applySettingsToOverlay(overlay) {
         overlay.classList.add('chatover-selectable-usernames');
     } else {
         overlay.classList.remove('chatover-selectable-usernames');
+    }
+
+    // Apply message direction class
+    if (settings.messageDirection === 'top') {
+        overlay.classList.add('chatover-messages-top');
+    } else {
+        overlay.classList.remove('chatover-messages-top');
     }
 }
 

@@ -157,6 +157,11 @@
   height: 0;
 }
 
+/* Message direction: newest at top */
+.chatover-messages-top .chatover-messages {
+  flex-direction: column-reverse;
+}
+
 /* Placeholder */
 .chatover-placeholder {
   color: rgba(255, 255, 255, 0.5);
@@ -978,6 +983,36 @@
 
 .chatover-settings-toggle input:checked+.chatover-settings-toggle-slider::before {
   transform: translateX(18px);
+}
+
+/* Select Dropdown */
+.chatover-settings-select {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 12px;
+  padding: 6px 10px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  min-width: 100px;
+}
+
+.chatover-settings-select:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.chatover-settings-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.chatover-settings-select option {
+  background: #1c1c23;
+  color: #fff;
+  padding: 8px;
 }
 
 /* Compact Color Picker */

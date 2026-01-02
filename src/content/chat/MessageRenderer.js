@@ -3,6 +3,7 @@
  */
 
 import { MessageType } from './MessageParser.js';
+import { getSetting } from '../settings/SettingsManager.js';
 
 /**
  * Default maximum number of messages to display
@@ -291,19 +292,35 @@ export class MessageRenderer {
      */
     _setupScrollTracking() {
         this._scrollHandler = () => {
-            // Check if user scrolled up (disable auto-scroll)
-            const isNearBottom = this.container.scrollHeight - this.container.scrollTop - this.container.clientHeight < 50;
-            this.autoScroll = isNearBottom;
+            const direction = getSetting('messageDirection') || 'bottom';
+            if (direction === 'top') {
+                // In column-reverse mode, scrollTop is negative and 0 is visual bottom
+                // Near visual top = scrollTop close to -scrollHeight (most negative)
+                const maxNegativeScroll = -(this.container.scrollHeight - this.container.clientHeight);
+                const isNearTop = this.container.scrollTop <= maxNegativeScroll + 50;
+                this.autoScroll = isNearTop;
+            } else {
+                // Normal mode - check if near bottom
+                const isNearBottom = this.container.scrollHeight - this.container.scrollTop - this.container.clientHeight < 50;
+                this.autoScroll = isNearBottom;
+            }
         };
         this.container.addEventListener('scroll', this._scrollHandler);
     }
 
     /**
-     * Scroll to bottom of messages
+     * Scroll to show newest messages
      * @private
      */
     _scrollToBottom() {
-        this.container.scrollTop = this.container.scrollHeight;
+        const direction = getSetting('messageDirection') || 'bottom';
+        if (direction === 'top') {
+            // In column-reverse mode, use negative scrollTop to reach visual top
+            this.container.scrollTop = -this.container.scrollHeight;
+        } else {
+            // Normal mode - scroll to bottom
+            this.container.scrollTop = this.container.scrollHeight;
+        }
     }
 
     /**
