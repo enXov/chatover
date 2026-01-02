@@ -61,14 +61,6 @@ YouTube's chat is stuck in a fixed sidebar position. You can't:
 
 **ChatOver is fully draggable, resizable, and customizable** - make it work for YOUR viewing style.
 
-## Features
-
-- 🎬 **Chat Overlay** - See chat messages on top of your video
-- 🖱️ **Draggable & Resizable** - Position the overlay anywhere you want
-- 🎨 **Modern Design** - Sleek UI that looks great
-- ⚙️ **Customizable** - Adjust fonts, transparency, and much more
-- 🌐 **Cross-Browser** - Works on Chrome and Firefox
-
 ## Installation (Development)
 
 1. Clone the repository:
