@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <video src="assets/showcase.webm" controls muted autoplay loop width="100%"></video>
+  <img src="assets/showcase.gif" alt="ChatOver Showcase" width="100%" />
 </p>
 
 <p align="center">
