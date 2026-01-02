@@ -158,8 +158,14 @@ function createToggleButton(forTeaserCarousel = false) {
   const button = document.createElement('button');
   button.id = 'chatover-toggle-btn';
   button.className = forTeaserCarousel ? 'chatover-toggle-btn chatover-toggle-btn-teaser' : 'chatover-toggle-btn ytp-button';
-  button.textContent = 'ChatOver';
   button.title = 'Toggle ChatOver overlay';
+
+  // Use logo icon instead of text
+  const icon = document.createElement('img');
+  icon.src = browser.runtime.getURL('icons/icon48.png');
+  icon.alt = 'ChatOver';
+  icon.className = 'chatover-toggle-icon';
+  button.appendChild(icon);
 
   button.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -181,12 +187,27 @@ function insertToggleButton() {
   const container = document.querySelector(BUTTON_PLACEMENT_SELECTOR);
   if (container) {
     // Find the Live chat section in the teaser carousel
-    const liveChatSection = findLiveChatTeaserSection(container);
-    if (liveChatSection) {
+    const result = findLiveChatTeaserSection(container);
+    if (result && result.element) {
       const button = createToggleButton(true);
       if (button) {
-        // Insert button at the end of the Live chat section
-        liveChatSection.appendChild(button);
+        if (result.useAbsolutePosition && result.insertAfter) {
+          // Create a wrapper span to hold the button inline without modifying YouTube's styles
+          const wrapper = document.createElement('span');
+          wrapper.className = 'chatover-toggle-wrapper';
+          wrapper.style.display = 'inline-flex';
+          wrapper.style.alignItems = 'center';
+          wrapper.style.marginLeft = '8px';
+          wrapper.style.verticalAlign = 'middle';
+          wrapper.appendChild(button);
+
+          // Insert wrapper after the text element as a sibling
+          result.insertAfter.after(wrapper);
+        } else if (result.insertAfter) {
+          result.insertAfter.after(button);
+        } else {
+          result.element.appendChild(button);
+        }
         return true;
       }
     }
@@ -195,42 +216,46 @@ function insertToggleButton() {
   return false;
 }
 
+
 /**
  * Find the Live chat section within the teaser carousel
- * Tries multiple strategies as YouTube's DOM can vary
+ * Returns the element containing "Live chat" text for button placement
+ * Does NOT modify YouTube's built-in styles - uses our own positioning
  */
 function findLiveChatTeaserSection(teaserCarousel) {
-  // Strategy 1: Look for section with class containing 'ItemSection'
+  // Strategy 1: Look for the h2 element that contains "Live chat" text
+  const h2Elements = teaserCarousel.querySelectorAll('h2');
+  for (const h2 of h2Elements) {
+    if (h2.textContent.trim() === 'Live chat') {
+      // Return the h2 element - we'll position our button relative to it
+      return { element: h2, insertAfter: h2, useAbsolutePosition: true };
+    }
+  }
+
+  // Strategy 2: Look for any element with exact "Live chat" text
+  const allElements = teaserCarousel.querySelectorAll('*');
+  for (const el of allElements) {
+    const directText = Array.from(el.childNodes)
+      .filter(n => n.nodeType === Node.TEXT_NODE)
+      .map(n => n.textContent.trim())
+      .join('');
+    if (directText === 'Live chat') {
+      return { element: el, insertAfter: el, useAbsolutePosition: true };
+    }
+  }
+
+  // Strategy 3: Look for section with class containing 'ItemSection'
   const sections = teaserCarousel.querySelectorAll('[class*="ItemSection"], [class*="item-section"]');
   for (const section of sections) {
     if (section.textContent.includes('Live chat')) {
-      return section;
+      return { element: section, insertAfter: null, useAbsolutePosition: false };
     }
-  }
-
-  // Strategy 2: Look for any element containing "Live chat" text
-  const allElements = teaserCarousel.querySelectorAll('*');
-  for (const el of allElements) {
-    // Check direct text content (not children)
-    const directText = Array.from(el.childNodes)
-      .filter(n => n.nodeType === Node.TEXT_NODE)
-      .map(n => n.textContent)
-      .join('');
-    if (directText.includes('Live chat')) {
-      // Return the parent container that likely holds the whole section
-      return el.closest('[class*="carousel"], [class*="teaser"]') || el.parentElement;
-    }
-  }
-
-  // Strategy 3: Find 'Open panel' button and get its container
-  const openPanelBtn = teaserCarousel.querySelector('button');
-  if (openPanelBtn && openPanelBtn.textContent.includes('Open panel')) {
-    return openPanelBtn.parentElement;
   }
 
   // Strategy 4: Just return the teaser carousel itself as last resort
-  return teaserCarousel;
+  return { element: teaserCarousel, insertAfter: null, useAbsolutePosition: false };
 }
+
 
 /**
  * Toggle the chat overlay visibility

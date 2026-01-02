@@ -4,19 +4,36 @@
   <img src="icons/icon128.png" alt="ChatOver Logo" width="128" />
 </p>
 
-A cross-browser extension that overlays YouTube live stream chat directly on top of the video player. Watch your favorite streams with chat visible in any viewing mode!
+<p align="center">
+  <video src="assets/showcase.webm" controls muted autoplay loop width="100%"></video>
+</p>
+
+<p align="center">
+  A cross-browser extension that overlays YouTube live stream chat directly on top of the video player.<br/>
+  Watch your favorite streams with chat visible in any viewing mode!
+</p>
+
+## Download
+
+<p align="center">
+  <a href="#">
+    <img src="https://img.shields.io/badge/Chrome-Download-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Chrome Web Store" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="#">
+    <img src="https://img.shields.io/badge/Firefox-Download-FF7139?style=for-the-badge&logo=firefox&logoColor=white" alt="Firefox Add-ons" />
+  </a>
+</p>
 
 ## Features
 
-- 🎬 **Transparent Chat Overlay** - See chat messages on top of your video
+- 🎬 **Chat Overlay** - See chat messages on top of your video
 - 🖱️ **Draggable & Resizable** - Position the overlay anywhere you want
-- 🎨 **Modern Design** - Sleek glassmorphism UI that looks great
-- ⚙️ **Customizable** - Adjust fonts, transparency, and more (coming soon)
+- 🎨 **Modern Design** - Sleek UI that looks great
+- ⚙️ **Customizable** - Adjust fonts, transparency, and much more
 - 🌐 **Cross-Browser** - Works on Chrome and Firefox
 
-## Installation
-
-### Development Build
+## Installation (Development)
 
 1. Clone the repository:
    ```bash
@@ -33,27 +50,6 @@ A cross-browser extension that overlays YouTube live stream chat directly on top
    ```bash
    npm run build
    ```
-
-### Load in Chrome
-
-1. Open `chrome://extensions/`
-2. Enable "Developer mode" (top right)
-3. Click "Load unpacked"
-4. Select the `dist` folder
-
-### Load in Firefox
-
-1. Open `about:debugging#/runtime/this-firefox`
-2. Click "Load Temporary Add-on..."
-3. Select any file in the `dist` folder (e.g., `manifest.json`)
-
-## Usage
-
-1. Go to any YouTube live stream
-2. Look for the "ChatOver" button near the chat controls
-3. Click to toggle the overlay
-4. Drag the header to reposition
-5. Click ⚙️ for settings (coming soon)
 
 ## Development
 
@@ -83,6 +79,16 @@ chatover/
 ├── icons/                # Extension icons
 └── dist/                 # Build output
 ```
+
+## Developer FAQ
+
+### Why do you use a third-party library like [youtube.js](https://github.com/LuanRT/YouTube.js)?
+
+YouTube's live chat can only be accessed through the DOM when the chat panel is open. If a user closes or minimizes the live chat panel, there is no reliable way to fetch chat messages directly from the page. By using [youtube.js](https://github.com/LuanRT/YouTube.js), we can connect to YouTube's InnerTube API and receive chat messages independently—regardless of whether the user has the chat panel open or closed.
+
+### Why are there no specific error messages or detailed error handling?
+
+The [youtube.js](https://github.com/LuanRT/YouTube.js) library is an unofficial client for YouTube's private API, so it doesn't cover all edge cases or provide comprehensive error types. We've done our best to handle common scenarios gracefully. If this extension gains popularity, we'd love to contribute improvements back to youtube.js. Thanks to the youtube.js team for making this project possible! ❤️
 
 ## License
 

@@ -5,54 +5,64 @@
 
 /* Toggle Button */
 .chatover-toggle-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: transparent;
   border: none;
-  padding: 6px 14px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 4px;
+  border-radius: 8px;
   cursor: pointer;
   margin-right: 8px;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
-  line-height: 1;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .chatover-toggle-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .chatover-toggle-btn:active {
-  transform: scale(0.98);
+  transform: scale(0.95);
 }
 
 /* Toggle Button - Teaser Carousel Variant */
 .chatover-toggle-btn-teaser {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: transparent;
   border: none;
-  padding: 8px 16px;
-  border-radius: 18px;
-  font-size: 14px;
-  font-weight: 500;
+  padding: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  margin-left: 12px;
+  margin-left: 8px;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
-  line-height: 1.2;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .chatover-toggle-btn-teaser:hover {
-  transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
-  filter: brightness(1.1);
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .chatover-toggle-btn-teaser:active {
-  transform: scale(0.98);
+  transform: scale(0.95);
+}
+
+/* Toggle Button Icon */
+.chatover-toggle-icon {
+  width: 32px;
+  height: 32px;
+  display: block;
+}
+
+/* Toggle Button Wrapper - keeps button inline without modifying YouTube's styles */
+.chatover-toggle-wrapper {
+  display: inline-flex !important;
+  align-items: center;
+  vertical-align: middle;
+  margin-left: 8px;
 }
 
 /* Main Overlay Container */
