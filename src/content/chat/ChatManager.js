@@ -135,6 +135,10 @@ export class ChatManager {
             }
             this.livechat = null;
         }
+
+        // Clear Innertube instance to release youtubei.js resources
+        this.innertube = null;
+
         this.videoId = null;
         this._setState(ConnectionState.DISCONNECTED);
 
@@ -334,4 +338,15 @@ export function getChatManager() {
         chatManagerInstance = new ChatManager();
     }
     return chatManagerInstance;
+}
+
+/**
+ * Reset the ChatManager singleton (fully releases all resources)
+ * Should be called during navigation cleanup
+ */
+export function resetChatManager() {
+    if (chatManagerInstance) {
+        chatManagerInstance.disconnect();
+        chatManagerInstance = null;
+    }
 }

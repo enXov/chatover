@@ -4,7 +4,7 @@
  */
 
 import browser from 'webextension-polyfill';
-import { getChatManager, ConnectionState, resetMessageSender } from './chat/index.js';
+import { getChatManager, ConnectionState, resetMessageSender, resetChatManager } from './chat/index.js';
 import { MessageRenderer } from './chat/MessageRenderer.js';
 import {
   loadSettings,
@@ -105,15 +105,22 @@ function waitForLiveStreamIndicator(timeout = 15000) {
       return;
     }
 
-    let checkInterval;
+    // Use a flag to prevent double-resolution and ensure cleanup
+    let resolved = false;
+    let checkInterval = null;
+
+    const cleanup = () => {
+      if (resolved) return;
+      resolved = true;
+      observer.disconnect();
+      if (checkInterval) clearInterval(checkInterval);
+    };
 
     const observer = new MutationObserver(() => {
       // Check live badge only (chat container exists on non-live videos too)
-      if (isLiveStream()) {
-        observer.disconnect();
-        if (checkInterval) clearInterval(checkInterval);
+      if (!resolved && isLiveStream()) {
+        cleanup();
         resolve(true);
-        return;
       }
     });
 
@@ -121,17 +128,15 @@ function waitForLiveStreamIndicator(timeout = 15000) {
 
     // Also poll periodically as backup (some style changes don't trigger mutation)
     checkInterval = setInterval(() => {
-      if (isLiveStream()) {
-        observer.disconnect();
-        clearInterval(checkInterval);
+      if (!resolved && isLiveStream()) {
+        cleanup();
         resolve(true);
       }
     }, 500);
 
     // Timeout
     setTimeout(() => {
-      observer.disconnect();
-      if (checkInterval) clearInterval(checkInterval);
+      cleanup();
       resolve(false);
     }, timeout);
   });
@@ -398,14 +403,7 @@ async function connectChat() {
   await chatManager.connect(videoId);
 }
 
-/**
- * Disconnect from live chat
- */
-function disconnectChat() {
-  const chatManager = getChatManager();
-  chatManager.disconnect();
-  chatConnected = false;
-}
+
 
 /**
  * Update connection status indicator in overlay
@@ -863,8 +861,8 @@ function cleanup() {
   const overlay = document.getElementById('chatover-overlay');
   const button = document.getElementById('chatover-toggle-btn');
 
-  // Disconnect chat
-  disconnectChat();
+  // Reset ChatManager singleton (fully releases all resources including listeners)
+  resetChatManager();
 
   // Disconnect resize observer
   if (resizeObserver) {
