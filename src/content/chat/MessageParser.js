@@ -310,11 +310,47 @@ export class MessageParser {
     _isVerified(author) {
         if (author.is_verified) return true;
 
-        // Fallback: Check badges for "Verified" tooltip or checkmark
+        // Fallback: Check badges for verified markers
         if (author.badges) {
             for (const badge of author.badges) {
+                // Check icon_type property (most reliable for verified badges)
+                const iconType = badge.icon_type || '';
+                if (iconType.toUpperCase().includes('VERIFIED') || iconType.toUpperCase().includes('CHECK')) {
+                    return true;
+                }
+
+                // Check style property
+                const style = badge.style || '';
+                if (style.toUpperCase().includes('VERIFIED')) {
+                    return true;
+                }
+
+                // Check label property
+                const label = badge.label || '';
+                if (label.includes('Verified') || label.includes('verified')) {
+                    return true;
+                }
+
+                // Check tooltip for verified text
                 const tooltip = badge.tooltip || '';
                 if (tooltip.includes('Verified') || tooltip.includes('verified') || tooltip === '✓') {
+                    return true;
+                }
+
+                // Check for verified badge icon URL patterns
+                const badgeUrl = badge.thumbnails?.[0]?.url ||
+                    badge.custom_thumbnail?.thumbnails?.[0]?.url ||
+                    badge.custom_thumbnail?.[0]?.url ||
+                    badge.icon?.thumbnails?.[0]?.url ||
+                    badge.thumbnail?.url ||
+                    badge.url ||
+                    '';
+
+                if (badgeUrl && (
+                    badgeUrl.includes('verified') ||
+                    badgeUrl.includes('check_circle') ||
+                    (badgeUrl.includes('yt_img_badges') && badgeUrl.includes('check'))
+                )) {
                     return true;
                 }
             }
@@ -340,6 +376,7 @@ export class MessageParser {
             });
         }
 
+
         if (author.is_moderator) {
             badges.push({
                 type: 'moderator',
@@ -348,7 +385,8 @@ export class MessageParser {
             });
         }
 
-        if (author.is_verified) {
+        // Use _isVerified() to check verification status with enhanced detection
+        if (this._isVerified(author)) {
             badges.push({
                 type: 'verified',
                 label: 'Verified',
