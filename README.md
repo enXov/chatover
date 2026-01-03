@@ -13,6 +13,24 @@
   Watch your favorite streams with chat visible in any viewing mode!
 </p>
 
+## Download
+
+> **Note:** ChatOver is currently available for manual installation. Once we gain traction, we'll publish to the Chrome Web Store and Firefox Add-ons for easier one-click installation!
+
+### Installation Steps
+
+1. **Download:** Get `chatover-v1.0.0.crx` (Chrome) or `chatover-v1.0.0.xpi` (Firefox) from releases
+
+2. **Open Extensions:** `chrome://extensions/` (Chrome) or `about:debugging#/runtime/this-firefox` (Firefox)
+
+3. **Enable Developer Mode:** Toggle "Developer mode" in Chrome (Firefox: skip this step)
+
+4. **Install:** Drag and drop the downloaded file into the extensions page (Chrome), or click "Load Temporary Add-on" and select the .xpi file (Firefox)
+
+5. **Enjoy!** Open any YouTube live stream and click the ChatOver button next to `Live Chat`
+
+> **Firefox Note:** Temporary add-ons are removed when Firefox restarts. Reload the extension after restarting until we publish to Firefox Add-ons.
+
 ## What This Extension Solves
 
 YouTube's live streaming experience has several frustrating limitations that ChatOver addresses:
